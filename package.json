@@ -1,0 +1,19 @@
+{
+  "name": "daldoza",
+  "version": "0.0.1",
+  "description": "daldoza game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SillyCoon/daldoza.git"
+  },
+  "author": "ahtunget@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SillyCoon/daldoza/issues"
+  },
+  "homepage": "https://github.com/SillyCoon/daldoza#readme"
+}
