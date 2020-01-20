@@ -1,16 +1,27 @@
 <html>
-    <head>
-        <title>Дальдоза</title>
-    </head>
-    <body>
-        <div>Дальдоза</div>
+
+<head>
+    <title>Дальдоза</title>
+</head>
+
+<body>
+    <div>Дальдоза</div>
+    <div class='game-container'>
+        <div id='field' class='field'>
+            <canvas id='canvas'>
+                
+            </canvas>
+        </div>
         <div class='controls'>
             <input id='move-from'>
             <input id='move-to'>
             <button id='btn-move' type='button'>Make move</button>
         </div>
-    </body>
-    <footer>
-        <script type='module' src="index.js"></script>
-    </footer>
+    </div>
+</body>
+<footer>
+    <script type='module' src="index.js"></script>
+    <link rel='stylesheet' type='text/css' href='src/styles/style.css'>
+    </link>
+</footer>
 </html>

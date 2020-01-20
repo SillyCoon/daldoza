@@ -1,0 +1,14 @@
+.game-container {
+    display: inline-flex;
+}
+
+.field {
+    height: 500px;
+    width: 1200px;
+    border: solid 1px black;
+    margin-right: 10px;
+}
+
+#canvas {
+    padding: 10px;
+}
