@@ -22,5 +22,6 @@ export class Game {
         toSquare.figure = fromSquare.figure;
         fromSquare.figure = null;
         this.field.print();
+        this.drawer.draw(this.field);
     }
 }
