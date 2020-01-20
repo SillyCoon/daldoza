@@ -1,5 +1,6 @@
 import { Square } from './square.js';
 import { Figure } from './figure.js';
+import { Coordinate } from './coordinate.js';
 
 export class Field {
 
@@ -24,9 +25,16 @@ export class Field {
       this.squares.push([]);
       const rowLength = (i === 1) ? this.middleRowLength : this.sideRowLength;
       for (let j = 0; j < rowLength; j++) {
-        this.squares[i].push(new Square(i, j, i !== 1 ? new Figure() : null));
+        this.squares[i].push(
+          new Square(new Coordinate(`${i};${j}`),
+            i !== 1 ? new Figure() : null)
+        );
       }
     }
+  }
+
+  findSquareByCoordinate(coordinate) {
+    return this.squares[coordinate.x][coordinate.y];
   }
 
   print() {

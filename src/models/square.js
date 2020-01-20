@@ -1,15 +1,12 @@
 export class Square {
-    x;
-    y;
+    coordinate;
     figure;
 
     get hasFigure() {
         return !!this.figure;
     };
 
-constructor(x, y, figure) {
-    this.x = x;
-    this.y = y;
-    this.figure = figure;
-}
+    constructor(coordinate, figure) {
+        this.figure = figure;
+    }
 }
