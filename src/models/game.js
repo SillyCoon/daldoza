@@ -25,8 +25,8 @@ export class Game {
     }
 
     makeMove(from, to) {
-        const fromSquare = this.field.findSquareByCoordinate(from);
-        const toSquare = this.field.findSquareByCoordinate(to);
+        const fromSquare = this.field.findSquare(from);
+        const toSquare = this.field.findSquare(to);
         toSquare.figure = fromSquare.figure;
         fromSquare.figure = null;
         this.drawer.draw(this.field);
@@ -34,12 +34,13 @@ export class Game {
     }
 
     activate(figureCoordinate) {
-        const square = this.field.findSquareByCoordinate(figureCoordinate);
+        const square = this.field.findSquare(figureCoordinate);
         if (square.hasFigure) {
 
             if (!square.figure.isActive) {
                 this.logger.log(new ActivatedEvent('1', figureCoordinate));
                 square.figure.activate();
+                this.drawer.draw(this.field);
             }
         } else {
             const error = 'Нельзя активировать пустую клетку!';

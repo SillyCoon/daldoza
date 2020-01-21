@@ -43,6 +43,12 @@ export class CanvasDrawer {
     _drawFigure(figure, x, y) {
         if (figure) {
             this._context.arc(this._centerOfSquare(x), this._centerOfSquare(y), 15, 0, Math.PI * 2, true);
+            if (figure.isActive) {
+                console.log('filled')
+                this._context.fill();
+            } else {
+                this._context.stroke();
+            }
         }
     }
 

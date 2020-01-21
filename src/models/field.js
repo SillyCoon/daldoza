@@ -33,7 +33,7 @@ export class Field {
     }
   }
 
-  findSquareByCoordinate(coordinate) {
+  findSquare(coordinate) {
     return this.squares[coordinate.x][coordinate.y];
   }
 
