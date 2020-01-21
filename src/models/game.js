@@ -12,12 +12,12 @@ export class Game {
     constructor() {
         this.field = new Field(16);
         const canvas = document.getElementById('canvas');
-        
+
         this.drawer = new CanvasDrawer(canvas);
         this.drawer.draw(this.field);
 
         const logPane = document.querySelector('#log-pane');
-        this.logger = new Logger(logPane);      
+        this.logger = new Logger(logPane);
     }
 
     reset() {
@@ -36,12 +36,15 @@ export class Game {
     activate(figureCoordinate) {
         const square = this.field.findSquareByCoordinate(figureCoordinate);
         if (square.hasFigure) {
-            square.figure.activate();
-            this.logger.log(new ActivatedEvent('1', figureCoordinate));
+
+            if (!square.figure.isActive) {
+                this.logger.log(new ActivatedEvent('1', figureCoordinate));
+                square.figure.activate();
+            }
         } else {
             const error = 'Нельзя активировать пустую клетку!';
             this.logger.logError(error);
             throw new Error(error);
         }
-    } 
+    }
 }

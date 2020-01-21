@@ -1,5 +1,3 @@
-import { MoveEvent } from './move-event.js';
-
 export class Logger {
 
     _logPane;
@@ -15,6 +13,7 @@ export class Logger {
     }
     
     logError(error) {
-        this._logPane.appendChild(error);
+        // add red text color
+        this.log(error);
     }
 }

@@ -1,11 +1,11 @@
-export class MoveEvent {
-    player;
-    from;
+import { BaseEvent } from "./base-event.js";
+
+export class MoveEvent extends BaseEvent {
+
     to;   
     
     constructor(player, from, to) {
-        this.player = player;
-        this.from = from;
+        super(player, from);
         this.to = to;
     }
 

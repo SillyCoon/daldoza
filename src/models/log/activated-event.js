@@ -1,11 +1,9 @@
-export class ActivatedEvent {
+import { BaseEvent } from "./base-event.js";
 
-    player;
-    from;
+export class ActivatedEvent extends BaseEvent {
 
     constructor(player, from) {
-        this.player = player;
-        this.from = from;
+        super(player, from);
     }
 
     toString() {
