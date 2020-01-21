@@ -9,13 +9,24 @@
     <div class='game-container'>
         <div id='field' class='field'>
             <canvas id='canvas'>
-                
+
             </canvas>
         </div>
-        <div class='controls'>
-            <input id='move-from'>
-            <input id='move-to'>
-            <button id='btn-move' type='button'>Make move</button>
+        <div>
+            <div class='controls'>
+                <div class='move'>
+                    <input id='move-from'>
+                    <input id='move-to'>
+                    <button id='btn-move' type='button'>Make move</button>
+                </div>
+                <div class='activate'>
+                    <input id='activate-coordinates'>
+                    <button id='btn-activate' type='button'>Activate</button>
+                </div>
+            </div>
+            <div id='log-pane'>
+                <h3>Лог:</h3>
+            </div>
         </div>
     </div>
 </body>
@@ -24,4 +35,5 @@
     <link rel='stylesheet' type='text/css' href='src/styles/style.css'>
     </link>
 </footer>
+
 </html>
