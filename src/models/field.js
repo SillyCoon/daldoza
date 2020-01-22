@@ -37,6 +37,22 @@ export class Field {
     return this.squares[coordinate.x][coordinate.y];
   }
 
+  distance(from, to) {
+    
+    const fromSideToCenter = () => from.y + to.y + 1;
+    const fromCenterToSide = () => (this.middleRowLength - from.y) + (this.sideRowLength - to.y) - 1;
+    const onOneLine = () => Math.abs(to.y - from.y);
+
+    if (to.x === from.x) {
+      return onOneLine();
+    } else if (from.x === 1) {
+      return fromCenterToSide();
+    } else {
+      return fromSideToCenter();
+    }
+
+  }
+
   print() {
     let desk = '';
     this.squares.forEach(row => {

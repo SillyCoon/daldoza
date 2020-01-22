@@ -4,8 +4,8 @@ export class Coordinate  {
 
     constructor(stringWithDelimiter) {
         const [x, y] = stringWithDelimiter.replace(' ', '').split(';');
-        this.x = x;
-        this.y = y;
+        this.x = +x;
+        this.y = +y;
     }
 
     toString() {
@@ -15,4 +15,5 @@ export class Coordinate  {
     equals(coordinate) {
         return this.toString() === coordinate.toString();
     }
+
 }

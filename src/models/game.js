@@ -41,6 +41,8 @@ export class Game {
         toSquare.figure = fromSquare.figure;
         fromSquare.figure = null;
 
+        console.log(this.field.distance(from, to));
+
         this.drawer.draw(this.field);
         this.logger.log(new MoveEvent(this.currentPlayer.name, from, to));
 
