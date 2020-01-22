@@ -6,12 +6,13 @@ export class CanvasDrawer {
     canvas;
     _context;
 
-    constructor(canvas) {
+    constructor(canvas, colorScheme) {
 
         canvas.height = 400;
         canvas.width = 1100;
 
         this.canvas = canvas;
+        this.colorScheme = colorScheme;
 
         if (canvas.getContext) {
             this._context = canvas.getContext('2d');
@@ -45,11 +46,7 @@ export class CanvasDrawer {
 
     _drawFigure(figure, x, y) {
 
-        if (figure.player === 1) {
-            this._setFigureColor('red'); // TODO: move to player preferences (figure preferences?)
-        } else {
-            this._setFigureColor('green');
-        }
+        this._setFigureColor(figure);
 
         this._context.arc(this._centerOfSquare(x), this._centerOfSquare(y), 15, 0, Math.PI * 2, true);
         if (figure.isActive) {
@@ -63,9 +60,10 @@ export class CanvasDrawer {
         return this.squareSize * (coord + 0.5);
     }
 
-    _setFigureColor(color) {
-        this._setStrokeColor(color);
-        this._setFillColor(color);
+    _setFigureColor(figure) {
+        const playerColor = figure.player === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor; 
+        this._setStrokeColor(playerColor);
+        this._setFillColor(playerColor);
     }
 
     _setStrokeColor(color) {

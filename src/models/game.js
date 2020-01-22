@@ -3,6 +3,7 @@ import { CanvasDrawer } from './draw/drawer.js';
 import { Logger } from './log/logger.js';
 import { MoveEvent } from './log/move-event.js';
 import { ActivatedEvent } from './log/activated-event.js';
+import { ColorScheme } from './draw/color-scheme.js';
 
 export class Game {
     field;
@@ -12,8 +13,8 @@ export class Game {
     constructor() {
         this.field = new Field(16);
         const canvas = document.getElementById('canvas');
-
-        this.drawer = new CanvasDrawer(canvas);
+        const colorScheme = new ColorScheme();
+        this.drawer = new CanvasDrawer(canvas, colorScheme);
         this.drawer.draw(this.field);
 
         const logPane = document.querySelector('#log-pane');
