@@ -27,7 +27,7 @@ export class Field {
       for (let j = 0; j < rowLength; j++) {
         this.squares[i].push(
           new Square(new Coordinate(`${i};${j}`),
-            i !== 1 ? new Figure() : null)
+            i !== 1 ? new Figure(i === 0 ? 1 : 2) : null)
         );
       }
     }

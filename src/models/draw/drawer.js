@@ -26,7 +26,9 @@ export class CanvasDrawer {
             row.forEach((square, x) => {
                 this._context.beginPath();
                 this._drawSquare(x, y);
-                this._drawFigure(square.figure, x, y);
+                if (square.figure) {
+                    this._drawFigure(square.figure, x, y);
+                }
                 this._context.stroke();
             });
         })
@@ -37,22 +39,41 @@ export class CanvasDrawer {
     }
 
     _drawSquare(x, y) {
+        this._setStrokeColor('black');
         this._context.strokeRect(x * this.squareSize, y * this.squareSize, this.squareSize, this.squareSize);
     }
 
     _drawFigure(figure, x, y) {
-        if (figure) {
-            this._context.arc(this._centerOfSquare(x), this._centerOfSquare(y), 15, 0, Math.PI * 2, true);
-            if (figure.isActive) {
-                console.log('filled')
-                this._context.fill();
-            } else {
-                this._context.stroke();
-            }
+
+        if (figure.player === 1) {
+            this._setFigureColor('red'); // TODO: move to player preferences (figure preferences?)
+        } else {
+            this._setFigureColor('green');
+        }
+
+        this._context.arc(this._centerOfSquare(x), this._centerOfSquare(y), 15, 0, Math.PI * 2, true);
+        if (figure.isActive) {
+            this._context.fill();
+        } else {
+            this._context.stroke();
         }
     }
 
     _centerOfSquare(coord) {
         return this.squareSize * (coord + 0.5);
     }
+
+    _setFigureColor(color) {
+        this._setStrokeColor(color);
+        this._setFillColor(color);
+    }
+
+    _setStrokeColor(color) {
+        this._context.strokeStyle = color;
+    }
+
+    _setFillColor(color) {
+        this._context.fillStyle = color;
+    }
+    
 }

@@ -3,8 +3,8 @@ export class Figure {
     isActive = false;
     canMove = false;
 
-    constructor() {
-
+    constructor(player) {
+        this.player = player
     }
 
     activate() {
