@@ -5,6 +5,7 @@ import { MoveEvent } from './log/move-event.js';
 import { ActivatedEvent } from './log/activated-event.js';
 import { ColorScheme } from './draw/color-scheme.js';
 import { Player } from './player.js';
+import { Dice } from './dice.js';
 
 export class Game {
     field;
@@ -19,6 +20,9 @@ export class Game {
         this.firstPlayer = new Player(1, 'A');
         this.secondPlayer = new Player(2, 'B');
         this.currentPlayer = this.firstPlayer;
+
+        this.aDice = new Dice();
+        this.bDice = new Dice();
 
         this.drawer = new CanvasDrawer(canvas, colorScheme);
         this.drawer.draw(this.field);
@@ -37,7 +41,6 @@ export class Game {
         toSquare.figure = fromSquare.figure;
         fromSquare.figure = null;
 
-        
         this.drawer.draw(this.field);
         this.logger.log(new MoveEvent(this.currentPlayer.name, from, to));
 
@@ -63,5 +66,12 @@ export class Game {
     switchPlayer() {
         this.currentPlayer = this.currentPlayer == this.firstPlayer
             ? this.secondPlayer : this.firstPlayer;
+    }
+    
+    rollDices() {
+        this.aDice.roll();
+        this.bDice.roll();
+        this.logger.log(`1 кубик: ${this.aDice.side}; 2 кубик: ${this.bDice.side}`);
+        this.switchPlayer();
     }
 }

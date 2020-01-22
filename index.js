@@ -10,6 +10,9 @@ btnMove.addEventListener('click', makeMove);
 const btnActivate = document.querySelector('#btn-activate');
 btnActivate.addEventListener('click', activate);
 
+const btnRoll = document.querySelector('#btn-roll');
+btnRoll.addEventListener('click', rollDices);
+
 function makeMove() {
     const from = getCoordinates('move-from')
     const to = getCoordinates('move-to')
@@ -23,4 +26,8 @@ function activate() {
 
 function getCoordinates(id) {
     return new Coordinate(document.getElementById(id).value);
+}
+
+function rollDices() {
+    game.rollDices();
 }
