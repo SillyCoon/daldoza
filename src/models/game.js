@@ -1,43 +1,42 @@
 import { Field } from './field.js'
-import { CanvasDrawer } from './draw/drawer.js';
-import { Logger } from './log/logger.js';
 import { MoveEvent } from './log/move-event.js';
 import { ActivatedEvent } from './log/activated-event.js';
-import { ColorScheme } from './draw/color-scheme.js';
 import { Player } from './player.js';
 import { Dice } from './dice.js';
+import { Square } from './square.js';
+import { GameSnapshot } from './game-snapshot.js';
 
 export class Game {
-    field;
-    drawer;
-    logger;
 
-    constructor() {
+    state;
+
+    constructor(drawer, logger) {
+
         this.field = new Field(16);
-        const canvas = document.getElementById('canvas');
-        const colorScheme = new ColorScheme();
+        this.drawer = drawer;
+        this.logger = logger;
 
-        this.firstPlayer = new Player(1, 'A');
-        this.secondPlayer = new Player(2, 'B');
+        this.initPlayers();
+        this.initDices();
+
         this.currentPlayer = this.firstPlayer;
-
-        this.aDice = new Dice();
-        this.bDice = new Dice();
-
-        this.drawer = new CanvasDrawer(canvas, colorScheme);
         this.drawer.draw(this.field);
-
-        const logPane = document.querySelector('#log-pane');
-        this.logger = new Logger(logPane);
     }
 
-    reset() {
-        this.field = new Field(16); // field.reset();
+    initPlayers(first = 'A', second = 'B') {
+        this.firstPlayer = new Player(1, first);
+        this.secondPlayer = new Player(2, second);
+    }
+
+    initDices() {
+        this.aDice = new Dice();
+        this.bDice = new Dice();
     }
 
     makeMove(from, to) {
         const fromSquare = this.field.findSquare(from);
         const toSquare = this.field.findSquare(to);
+
         toSquare.figure = fromSquare.figure;
         fromSquare.figure = null;
 
@@ -69,11 +68,20 @@ export class Game {
         this.currentPlayer = this.currentPlayer == this.firstPlayer
             ? this.secondPlayer : this.firstPlayer;
     }
-    
+
     rollDices() {
         this.aDice.roll();
         this.bDice.roll();
         this.logger.log(`1 кубик: ${this.aDice.side}; 2 кубик: ${this.bDice.side}`);
-        this.switchPlayer();
+    }
+
+    save() {
+        const fieldSnapshot = this.field.makeSnapshot();
+        return new GameSnapshot(fieldSnapshot, [this.aDice.side, this.bDice.side], this.currentPlayer);
+    }
+
+    restore(snapshot) {
+        this.field.restore(snapshot.fieldSnapshot);
+
     }
 }

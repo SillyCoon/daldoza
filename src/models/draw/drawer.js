@@ -61,7 +61,7 @@ export class CanvasDrawer {
     }
 
     _setFigureColor(figure) {
-        const playerColor = figure.player === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor; 
+        const playerColor = figure.isFirstPlayer ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor; 
         this._setStrokeColor(playerColor);
         this._setFillColor(playerColor);
     }

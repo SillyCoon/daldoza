@@ -8,6 +8,11 @@ export class Coordinate  {
         this.y = +y;
     }
 
+    set(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
     toString() {
         return `x: ${this.x}, y: ${this.y}`;
     }

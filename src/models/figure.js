@@ -3,11 +3,15 @@ export class Figure {
     isActive = false;
     canMove = false;
 
-    constructor(player) {
-        this.player = player
+    constructor(color) {
+        this.color = color;
     }
 
     activate() {
         this.isActive = true;
+    }
+
+    get isFirstPlayer() {
+        return this.color === 1; 
     }
 }

@@ -1,6 +1,7 @@
 import { Square } from './square.js';
 import { Figure } from './figure.js';
 import { Coordinate } from './coordinate.js';
+import { NotationConverter } from '../logic/notation-converter.js';
 
 export class Field {
 
@@ -17,10 +18,10 @@ export class Field {
   constructor(size = 16) {
     this.sideRowLength = size;
     this.colsLength = 3;
-    this.init();
+    this._init();
   }
 
-  init() {
+  _init() {
     for (let i = 0; i < this.colsLength; i++) {
       this.squares.push([]);
       const rowLength = (i === 1) ? this.middleRowLength : this.sideRowLength;
@@ -38,7 +39,7 @@ export class Field {
   }
 
   distance(from, to) {
-    
+
     const fromSideToCenter = () => from.y + to.y + 1;
     const fromCenterToSide = () => (this.middleRowLength - from.y) + (this.sideRowLength - to.y) - 1;
     const onOneLine = () => Math.abs(to.y - from.y);
@@ -53,19 +54,27 @@ export class Field {
 
   }
 
+
   print() {
-    let desk = '';
-    this.squares.forEach(row => {
-      row.forEach(square => {
-        if (square.hasFigure) {
-          desk += square.figure.isActive ? '+' : '-';
-        }
-        else {
-          desk += '*';
-        }
-      });
-      desk += '\n';
-    })
+    const desk = NotationConverter.toNotation(this).replace(/\|/g, '\n');
     console.log(desk);
   }
+
+  makeSnapshot() {
+    return NotationConverter.toNotation(this);
+  }
+
+  restore(snapshot) {
+    const cols = snapshot.split('|');
+    cols.forEach((col, i) => {
+      let j = 0;
+      for (let c of col) {
+        const figure = NotationConverter.charToFigure(c);
+        const currentSquare = this.findSquare(new Coordinate(`${i};${j}`))
+        currentSquare.figure = figure;
+        j++;
+      }
+    });
+  }
+
 }

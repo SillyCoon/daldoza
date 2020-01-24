@@ -1,7 +1,14 @@
 import { Game } from './src/models/game.js';
 import { Coordinate } from './src/models/coordinate.js';
+import { CanvasDrawer } from './src/models/draw/drawer.js';
+import { Logger } from './src/models/log/logger.js';
+import { ColorScheme } from './src/models/draw/color-scheme.js';
 
-const game = new Game();
+const drawer = initDrawer();
+const logger = initLogger(); 
+
+
+const game = new Game(drawer, logger);
 game.field.print();
 
 const btnMove = document.querySelector('#btn-move');
@@ -30,4 +37,17 @@ function getCoordinates(id) {
 
 function rollDices() {
     game.rollDices();
+}
+
+// Фабрику бы, фабрику
+function initDrawer() {
+    const canvas = document.getElementById('canvas');
+    const colorScheme = new ColorScheme();
+    return new CanvasDrawer(canvas, colorScheme);
+}
+
+function initLogger() {
+    const logPane = document.querySelector('#log-pane');
+    const logger = new Logger(logPane);
+    return logger;
 }
