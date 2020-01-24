@@ -12,6 +12,8 @@ export class Game {
     constructor(drawer, logger) {
 
         this.field = new Field(16);
+        this.dice = new Dice(4);
+
         this.drawer = drawer;
         this.logger = logger;
         this.dices = [];
@@ -64,7 +66,8 @@ export class Game {
     }
 
     rollDices() {
-        this.dices.push(Dice.roll, Dice.roll);
+        this.dices = [];
+        this.dices.push(this.dice.roll(), this.dice.roll());
         this.logger.log(`1 кубик: ${this.dices[0]}; 2 кубик: ${this.dices[1]}`);
     }
 

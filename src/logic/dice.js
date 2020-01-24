@@ -1,13 +1,12 @@
 export class Dice {
     
 
-    constructor() {
-        this.sides = 4;
-        this.side = 1;
+    constructor(sides = 4) {
+        this.sides = sides;
     }
 
-    static roll() {
-        this.side = this._generateRandom(this.sides);
+    roll() {
+        return this._generateRandom(this.sides);
     }
 
     _generateRandom(max) {
