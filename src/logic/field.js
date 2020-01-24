@@ -1,7 +1,7 @@
-import { Square } from './square.js';
-import { Figure } from './figure.js';
-import { Coordinate } from './coordinate.js';
-import { NotationConverter } from '../logic/notation-converter.js';
+import { Square } from '../models/game-elements/square.js';
+import { Figure } from '../models/game-elements/figure.js';
+import { Coordinate } from '../models/game-elements/coordinate.js';
+import { NotationConverter } from './notation-converter.js';
 
 export class Field {
 

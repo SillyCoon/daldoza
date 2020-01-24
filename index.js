@@ -1,7 +1,7 @@
-import { Game } from './src/models/game.js';
-import { Coordinate } from './src/models/coordinate.js';
-import { CanvasDrawer } from './src/models/draw/drawer.js';
-import { Logger } from './src/models/log/logger.js';
+import { Game } from './src/logic/game.js';
+import { Coordinate } from './src/models/game-elements/coordinate.js';
+import { CanvasDrawer } from './src/logic/drawer.js';
+import { Logger } from './src/logic/logger.js';
 import { ColorScheme } from './src/models/draw/color-scheme.js';
 
 const drawer = initDrawer();

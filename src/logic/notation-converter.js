@@ -1,4 +1,4 @@
-import { Figure } from '../models/figure.js'
+import { Figure } from '../models/game-elements/figure.js'
 
 export class NotationConverter {
 

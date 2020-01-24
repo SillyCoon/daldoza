@@ -1,10 +1,9 @@
 import { Field } from './field.js'
-import { MoveEvent } from './log/move-event.js';
-import { ActivatedEvent } from './log/activated-event.js';
-import { Player } from './player.js';
+import { MoveEvent } from '../models/events/move-event.js';
+import { ActivatedEvent } from '../models/events/activated-event.js';
+import { Player } from '../models/game-elements/player.js';
 import { Dice } from './dice.js';
-import { Square } from './square.js';
-import { GameSnapshot } from './game-snapshot.js';
+import { GameSnapshot } from '../models/game-elements/game-snapshot.js';
 
 export class Game {
 
