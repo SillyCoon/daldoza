@@ -14,9 +14,9 @@ export class Game {
         this.field = new Field(16);
         this.drawer = drawer;
         this.logger = logger;
+        this.dices = [];
 
         this.initPlayers();
-        this.initDices();
 
         this.currentPlayer = this.firstPlayer;
         this.drawer.draw(this.field);
@@ -25,11 +25,6 @@ export class Game {
     initPlayers(first = 'A', second = 'B') {
         this.firstPlayer = new Player(1, first);
         this.secondPlayer = new Player(2, second);
-    }
-
-    initDices() {
-        this.aDice = new Dice();
-        this.bDice = new Dice();
     }
 
     makeMove(from, to) {
@@ -69,18 +64,19 @@ export class Game {
     }
 
     rollDices() {
-        this.aDice.roll();
-        this.bDice.roll();
-        this.logger.log(`1 кубик: ${this.aDice.side}; 2 кубик: ${this.bDice.side}`);
+        this.dices.push(Dice.roll, Dice.roll);
+        this.logger.log(`1 кубик: ${this.dices[0]}; 2 кубик: ${this.dices[1]}`);
     }
 
     save() {
         const fieldSnapshot = this.field.makeSnapshot();
-        return new GameSnapshot(fieldSnapshot, [this.aDice.side, this.bDice.side], this.currentPlayer);
+        return new GameSnapshot(fieldSnapshot, [...this.dices], this.currentPlayer.turn);
     }
 
     restore(snapshot) {
         this.field.restore(snapshot.fieldSnapshot);
-
+        this.dices = [...snapshot.dices];
+        this.currentPlayer = snapshot.currentPlayer === 1 ? this.firstPlayer : this.secondPlayer;
+        this.drawer.draw(this.field);
     }
 }

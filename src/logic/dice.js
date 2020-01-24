@@ -6,7 +6,7 @@ export class Dice {
         this.side = 1;
     }
 
-    roll() {
+    static roll() {
         this.side = this._generateRandom(this.sides);
     }
 
