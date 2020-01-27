@@ -6,6 +6,8 @@ import { ColorScheme } from './src/models/draw/color-scheme.js';
 import { Size } from './src/models/draw/size.js';
 
 const canvas = document.getElementById('canvas');
+const colorScheme = new ColorScheme();
+const size = new Size();
 
 const drawer = initDrawer();
 const logger = initLogger(); 
@@ -31,7 +33,7 @@ btnUndo.addEventListener('click', undo);
 canvas.addEventListener('click', (event) => {
     const mousePosition = getMousePosition(event);
     const translatedCoordinates = translateMousePositionToGameCoordinates(mousePosition);
-    console.log(mousePosition);
+    console.log(mousePosition, translatedCoordinates);
 });
 
 const game = new Game(drawer, logger);
@@ -79,7 +81,12 @@ function getMousePosition(event) {
     }
 }
 
-function translateMousePositionToGameCoordinates() {
+function translateMousePositionToGameCoordinates(mousePosition) {
+    const x = translate(mousePosition.x);
+    const y = translate(mousePosition.y);
+    return {x, y};
+
+    function translate(coord) { return Math.floor((coord - size.numerationPadding) / size.square)}
     
 }
 
@@ -90,9 +97,6 @@ function enableUndo(state) {
 
 // Фабрику бы, фабрику (или нет)
 function initDrawer() {
-    const size = new Size();
-    const colorScheme = new ColorScheme();
-    
     canvas.height = size.height;
     canvas.width = size.width;
     return new CanvasDrawer(canvas, colorScheme, size);
