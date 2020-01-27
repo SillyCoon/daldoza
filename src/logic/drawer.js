@@ -1,17 +1,15 @@
 export class CanvasDrawer {
 
     squareSize = 40;
-    squarePadding = 5;
 
-    canvas;
     _context;
 
     constructor(canvas, colorScheme) {
 
-        canvas.height = 400;
-        canvas.width = 1100;
-
         this.canvas = canvas;
+        canvas.height = 800;
+        canvas.width = 600;
+
         this.colorScheme = colorScheme;
 
         if (canvas.getContext) {
@@ -23,8 +21,8 @@ export class CanvasDrawer {
 
     draw(field) {
         this.clear();
-        field.squares.forEach((row, y) => {
-            row.forEach((square, x) => {
+        field.squares.forEach((row, x) => {
+            row.forEach((square, y) => {
                 this._context.beginPath();
                 this._drawSquare(x, y);
                 if (square.figure) {
