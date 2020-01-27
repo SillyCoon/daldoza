@@ -1,18 +1,11 @@
 export class CanvasDrawer {
 
-    squareSize = 40;
-
-    _context;
-
-    constructor(canvas, colorScheme) {
-
+    constructor(canvas, colorScheme, size) {
         this.canvas = canvas;
-        canvas.height = 800;
-        canvas.width = 600;
 
-        this.fontSize = this.squareSize / 2;
-        this.numerationPadding = this.fontSize * 2;
-
+        this.squareSize = size.square;
+        this.fontSize = size.fontSize;
+        this.numerationPadding = size.numerationPadding;
         this.colorScheme = colorScheme;
 
         if (canvas.getContext) {
