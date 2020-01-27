@@ -5,5 +5,7 @@ export class ColorScheme {
         this.firstPlayerColor = firstPlayerColor;
         this.secondPlayerColor = secondPlayerColor;
         this.fieldColor = fieldColor;
+        this.basicSquare = 'black';
+        this.highlightedSquare = 'purple';
     }
 }

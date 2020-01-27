@@ -54,6 +54,25 @@ export class Field {
 
   }
 
+  highlightSquares(highlightingSquaresCoordinates) {
+    highlightingSquaresCoordinates.forEach(coordinates => {
+      const square = this.findSquare(coordinates);
+      square.highlighted = true;
+    });
+  }
+
+  getSquareByDistanceFromCurrent(currentSquare, distance, player) {
+    if (currentSquare.x === 1) {
+      const res = this.middleRowLength + distance;
+      const diff = res - this.middleRowLength;
+      if (diff <= 0) return { x: 1, y: res };
+      return { x: player === 1 ? 2 : 0, y: diff - 1 };
+    } else {
+      const res = currentSquare.y - distance;
+      if (res > 0) return {x: currentSquare.x, y: res};
+      return { x: 1, y: Math.abs(res) - 1 };
+    } 
+  }
 
   print() {
     const desk = NotationConverter.toNotation(this).replace(/\|/g, '\n');

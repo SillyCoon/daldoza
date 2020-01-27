@@ -4,6 +4,7 @@ import { ActivatedEvent } from '../models/events/activated-event.js';
 import { Player } from '../models/game-elements/player.js';
 import { Dice } from './dice.js';
 import { GameSnapshot } from '../models/game-elements/game-snapshot.js';
+import { CoordinateTranslator } from './coordinate-translator.js';
 
 export class Game {
 
@@ -27,6 +28,18 @@ export class Game {
     initPlayers(first = 'A', second = 'B') {
         this.firstPlayer = new Player(1, first);
         this.secondPlayer = new Player(2, second);
+    }
+
+    showPossibleMoves(coordinates) {
+        if (!this.dices.length) {
+            this.logger.log('Сначала киньте кубики!');
+            return;
+        }
+
+        const availableMoves = this.dices.map(dice =>
+            this.field.getSquareByDistanceFromCurrent(coordinates, dice, this.currentPlayer.turn));
+        this.field.highlightSquares(availableMoves);
+        this.drawer.draw(this.field);
     }
 
     makeMove(from, to) {
@@ -67,7 +80,8 @@ export class Game {
 
     rollDices() {
         this.dices = [];
-        this.dices.push(this.dice.roll(), this.dice.roll());
+        this.dices.push(this.dice.roll(), this.dice.roll())
+        this.dices.push(this.dices.reduce((a, b) => a + b));
         this.logger.log(`1 кубик: ${this.dices[0]}; 2 кубик: ${this.dices[1]}`);
     }
 

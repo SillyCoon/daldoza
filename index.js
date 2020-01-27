@@ -4,6 +4,7 @@ import { CanvasDrawer } from './src/logic/drawer.js';
 import { Logger } from './src/logic/logger.js';
 import { ColorScheme } from './src/models/draw/color-scheme.js';
 import { Size } from './src/models/draw/size.js';
+import { CoordinateTranslator } from './src/logic/coordinate-translator.js';
 
 const canvas = document.getElementById('canvas');
 const colorScheme = new ColorScheme();
@@ -14,6 +15,7 @@ const logger = initLogger();
 
 const snapshots = [];
 
+const game = new Game(drawer, logger);
 
 const btnMove = document.querySelector('#btn-move');
 btnMove.addEventListener('click', makeMove);
@@ -29,15 +31,17 @@ btnSave.addEventListener('click', save);
 
 const btnUndo = document.querySelector('#btn-undo');
 btnUndo.addEventListener('click', undo);
+enableUndo(false);
 
 canvas.addEventListener('click', (event) => {
     const mousePosition = getMousePosition(event);
-    const translatedCoordinates = translateMousePositionToGameCoordinates(mousePosition);
+    const translatedCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
+
     console.log(mousePosition, translatedCoordinates);
+    game.showPossibleMoves(translatedCoordinates);
 });
 
-const game = new Game(drawer, logger);
-enableUndo(false);
+
 
 function makeMove() {
     save();
@@ -81,14 +85,6 @@ function getMousePosition(event) {
     }
 }
 
-function translateMousePositionToGameCoordinates(mousePosition) {
-    const x = translate(mousePosition.x);
-    const y = translate(mousePosition.y);
-    return {x, y};
-
-    function translate(coord) { return Math.floor((coord - size.numerationPadding) / size.square)}
-    
-}
 
 function enableUndo(state) {
     btnUndo.disabled = !state;

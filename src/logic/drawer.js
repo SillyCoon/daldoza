@@ -1,3 +1,5 @@
+import { CoordinateTranslator } from "./coordinate-translator.js";
+
 export class CanvasDrawer {
 
     constructor(canvas, colorScheme, size) {
@@ -23,7 +25,7 @@ export class CanvasDrawer {
             this._drawXNumeration(x);
             row.forEach((square, y) => {
                 this._context.beginPath();
-                this._drawSquare(x, y);
+                this._drawSquare(x, y, square.highlighted);
                 this._drawYNumeration(y);
                 if (square.figure) {
                     this._drawFigure(square.figure, x, y);
@@ -37,9 +39,16 @@ export class CanvasDrawer {
         this._context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    _drawSquare(x, y) {
-        this._setStrokeColor('black');
+    _drawSquare(x, y, highlighted) {
+        let color = this.colorScheme.basicSquare;
+        if (highlighted) {
+            console.log(this.colorScheme.highlightedSquare);
+            this._context.lineWidth = 3;
+            color = this.colorScheme.highlightedSquare;
+        }
+        this._setStrokeColor(color);
         this._context.strokeRect(this._nextSquareCoordinate(x), this._nextSquareCoordinate(y), this.squareSize, this.squareSize);
+        this._context.lineWidth = 1;
     }
 
     _drawFigure(figure, x, y) {
@@ -73,7 +82,7 @@ export class CanvasDrawer {
     }
 
     _setFigureColor(figure) {
-        const playerColor = figure.isFirstPlayer ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor; 
+        const playerColor = figure.isFirstPlayer ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor;
         this._setStrokeColor(playerColor);
         this._setFillColor(playerColor);
     }
@@ -85,5 +94,5 @@ export class CanvasDrawer {
     _setFillColor(color) {
         this._context.fillStyle = color;
     }
-    
+
 }

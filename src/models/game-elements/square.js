@@ -6,7 +6,8 @@ export class Square {
         return !!this.figure;
     };
 
-    constructor(coordinate, figure) {
+    constructor(coordinate, figure, highlighted = false) {
         this.figure = figure;
+        this.highlighted = highlighted;
     }
 }
