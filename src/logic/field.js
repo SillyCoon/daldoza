@@ -27,7 +27,8 @@ export class Field {
       const rowLength = (i === 1) ? this.middleRowLength : this.sideRowLength;
       for (let j = 0; j < rowLength; j++) {
         this.squares[i].push(
-          new Square(new Coordinate(`${i};${j}`),
+          new Square(
+            { x: i, y: j },
             i !== 1 ? new Figure(i === 0 ? 1 : 2) : null)
         );
       }
@@ -62,16 +63,19 @@ export class Field {
   }
 
   getSquareByDistanceFromCurrent(currentSquareCoordinates, distance, player) {
+
+    let neededSquareCoordinates;
     if (currentSquareCoordinates.x === 1) {
       const res = currentSquareCoordinates.x + distance;
       const diff = res - this.middleRowLength;
-      if (diff <= 0) return { x: 1, y: res };
-      return { x: player === 1 ? 2 : 0, y: diff - 1 };
+      if (diff <= 0) neededSquareCoordinates = { x: 1, y: res } 
+      else neededSquareCoordinates = { x: player === 1 ? 2 : 0, y: diff - 1 };
     } else {
       const res = currentSquareCoordinates.y - distance;
-      if (res >= 0) return {x: currentSquareCoordinates.x, y: res};
-      return { x: 1, y: Math.abs(res) - 1 };
-    } 
+      if (res >= 0) neededSquareCoordinates = { x: currentSquareCoordinates.x, y: res };
+      else neededSquareCoordinates = { x: 1, y: Math.abs(res) - 1 };
+    }
+    return this.squares[neededSquareCoordinates.x][neededSquareCoordinates.y];
   }
 
   print() {

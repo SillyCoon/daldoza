@@ -41,8 +41,11 @@ export class Game {
 
         this.removeHighlighting();
 
-        this.availableMoves = this.dices.map(dice =>
-            this.field.getSquareByDistanceFromCurrent(coordinates, dice, this.currentPlayer.turn));
+        this.availableMoves = this.dices
+            .map(dice => this.field.getSquareByDistanceFromCurrent(coordinates, dice, this.currentPlayer.turn))
+            .filter(square => square.availableForMove(this.currentPlayer.turn))
+            .filter(square => hasNoCurrentPlayersFigureOnWay(square))
+            .map(square => square.coordinate);
 
         this.highlightAvailableToMoveSquares(this.availableMoves);
     }
@@ -101,9 +104,13 @@ export class Game {
         this.drawer.draw(this.field);
     }
 
-    highlightAvailableToMoveSquares(squaresCoordinates){
-        console.log(squaresCoordinates);
-        if (!squaresCoordinates || !squaresCoordinates.length){
+    hasNoCurrentPlayersFigureOnWay(square) {
+
+    }
+
+    highlightAvailableToMoveSquares(squaresCoordinates) {
+
+        if (!squaresCoordinates || !squaresCoordinates.length) {
             this.logger.log('У этой фигуры нет доступных ходов!');
         }
         this.field.setHighlighting(squaresCoordinates, true);
