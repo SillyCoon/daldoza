@@ -42,7 +42,6 @@ export class CanvasDrawer {
     _drawSquare(x, y, highlighted) {
         let color = this.colorScheme.basicSquare;
         if (highlighted) {
-            console.log(this.colorScheme.highlightedSquare);
             this._context.lineWidth = 3;
             color = this.colorScheme.highlightedSquare;
         }

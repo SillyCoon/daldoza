@@ -36,8 +36,6 @@ enableUndo(false);
 canvas.addEventListener('click', (event) => {
     const mousePosition = getMousePosition(event);
     const translatedCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
-
-    console.log(mousePosition, translatedCoordinates);
     game.showPossibleMoves(translatedCoordinates);
 });
 

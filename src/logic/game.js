@@ -19,6 +19,8 @@ export class Game {
         this.logger = logger;
         this.dices = [];
 
+        this.availableMoves = [];
+
         this.initPlayers();
 
         this.currentPlayer = this.firstPlayer;
@@ -31,30 +33,32 @@ export class Game {
     }
 
     showPossibleMoves(coordinates) {
+
         if (!this.dices.length) {
             this.logger.log('Сначала киньте кубики!');
             return;
         }
 
-        const availableMoves = this.dices.map(dice =>
+        this.removeHighlighting();
+
+        this.availableMoves = this.dices.map(dice =>
             this.field.getSquareByDistanceFromCurrent(coordinates, dice, this.currentPlayer.turn));
-        this.field.highlightSquares(availableMoves);
-        this.drawer.draw(this.field);
+
+        this.highlightAvailableToMoveSquares(this.availableMoves);
     }
 
     makeMove(from, to) {
+        this.removeHighlighting();
         const fromSquare = this.field.findSquare(from);
         const toSquare = this.field.findSquare(to);
 
         toSquare.figure = fromSquare.figure;
         fromSquare.figure = null;
 
-        console.log(this.field.distance(from, to));
-
         this.drawer.draw(this.field);
         this.logger.log(new MoveEvent(this.currentPlayer.name, from, to));
 
-        this.switchPlayer();
+        // this.switchPlayer();
     }
 
     activate(figureCoordinate) {
@@ -94,6 +98,21 @@ export class Game {
         this.field.restore(snapshot.fieldSnapshot);
         this.dices = [...snapshot.dices];
         this.currentPlayer = snapshot.currentPlayer === 1 ? this.firstPlayer : this.secondPlayer;
+        this.drawer.draw(this.field);
+    }
+
+    highlightAvailableToMoveSquares(squaresCoordinates){
+        console.log(squaresCoordinates);
+        if (!squaresCoordinates || !squaresCoordinates.length){
+            this.logger.log('У этой фигуры нет доступных ходов!');
+        }
+        this.field.setHighlighting(squaresCoordinates, true);
+        this.drawer.draw(this.field);
+    }
+
+    removeHighlighting() {
+        this.field.setHighlighting(this.availableMoves, false);
+        this.highlightingCoordinates = [];
         this.drawer.draw(this.field);
     }
 }
