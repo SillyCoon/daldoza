@@ -14,6 +14,6 @@ export class Square {
     }
 
     availableForMove(playersTurn) {
-        return this.figure.color !== playersTurn;
+        return !this.figure || this.figure.color !== playersTurn;
     }
 }
