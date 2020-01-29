@@ -20,9 +20,6 @@ const game = new Game(drawer, logger);
 const btnMove = document.querySelector('#btn-move');
 btnMove.addEventListener('click', makeMove);
 
-const btnActivate = document.querySelector('#btn-activate');
-btnActivate.addEventListener('click', activate);
-
 const btnRoll = document.querySelector('#btn-roll');
 btnRoll.addEventListener('click', rollDices);
 
