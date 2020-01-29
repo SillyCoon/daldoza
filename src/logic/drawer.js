@@ -1,4 +1,5 @@
 import { CoordinateTranslator } from "./coordinate-translator.js";
+import { DiceDrawerFactory } from "./dice-drawer-factory.js";
 
 export class CanvasDrawer {
 
@@ -14,13 +15,16 @@ export class CanvasDrawer {
             this._context = canvas.getContext('2d');
             this._context.font = `${this.fontSize}px serif`;
             this._context.textAlign = 'center';
+            this._context.textBaseline = 'middle';
+
         } else {
             throw new Error('Not canvas!');
         }
     }
 
-    draw(field) {
+    draw(field, dices) {
         this.clear();
+        this._drawDices(dices);
         field.squares.forEach((row, x) => {
             this._drawXNumeration(x);
             row.forEach((square, y) => {
@@ -40,10 +44,13 @@ export class CanvasDrawer {
     }
 
     _drawDices(dices) {
-        
+        if (dices && dices.length) {
+            this._drawDice(9, 2, dices[0]);
+            this._drawDice(11, 2, dices[1]);
+        }
     }
 
-    _drawSquare(x, y, highlighted) {
+    _drawSquare(x, y, highlighted = false) {
         let color = this.colorScheme.basicSquare;
         if (highlighted) {
             this._context.lineWidth = 3;
@@ -52,6 +59,13 @@ export class CanvasDrawer {
         this._setStrokeColor(color);
         this._context.strokeRect(this._nextSquareCoordinate(x), this._nextSquareCoordinate(y), this.squareSize, this.squareSize);
         this._context.lineWidth = 1;
+    }
+
+    _drawDice(x, y, value) {
+        this._drawSquare(x, y);
+
+        const valueDrawer = new DiceDrawerFactory(value);
+        valueDrawer.makeDrawFunction()(this._context, this._centerOfSquare(x), this._centerOfSquare(y));
     }
 
     _drawFigure(figure, x, y) {

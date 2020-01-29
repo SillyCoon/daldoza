@@ -50,7 +50,7 @@ export class Game {
         }
 
         const currentSquare = this.field.findSquare(coordinates);
-        
+
         if (figureReadyToMove(currentSquare.figure)) {
             this.availableMoves = this.dices
                 .map(distance => this.field.getSquareByDistanceFromCurrent(coordinates, distance, this.currentPlayer.color))
@@ -101,6 +101,7 @@ export class Game {
         this.dices.push(this.dice.roll(), this.dice.roll())
         this.dices.push(this.dices.reduce((a, b) => a + b));
         this.logger.log(`1 кубик: ${this.dices[0]}; 2 кубик: ${this.dices[1]}`);
+        this.drawer.draw(this.field, this.dices);
     }
 
     save() {
