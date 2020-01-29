@@ -38,9 +38,8 @@ export class Game {
 
     showPossibleMoves(coordinates) {
 
-        const currentSquareHasProperFigure = () => {
-            const currentSquare = this.field.findSquare(coordinates);
-            return !(!currentSquare.hasFigure || currentSquare.figure.color !== this.currentPlayer.turn || !currentSquare.figure.isActive);
+        const figureReadyToMove = (figure) => {
+            return !(!figure || figure.color !== this.currentPlayer.color || !figure.isActive);
         }
 
         this.removeHighlighting();
@@ -50,11 +49,12 @@ export class Game {
             return;
         }
 
-        if (currentSquareHasProperFigure()) {
-
+        const currentSquare = this.field.findSquare(coordinates);
+        
+        if (figureReadyToMove(currentSquare.figure)) {
             this.availableMoves = this.dices
-                .map(distance => this.field.getSquareByDistanceFromCurrent(coordinates, distance, this.currentPlayer.turn))
-                .filter(square => !this.field.hasFiguresOnWay(coordinates, square.coordinate, this.currentPlayer.turn))
+                .map(distance => this.field.getSquareByDistanceFromCurrent(coordinates, distance, this.currentPlayer.color))
+                .filter(square => !this.field.hasFiguresOnWay(coordinates, square.coordinate, this.currentPlayer.color))
                 .map(square => square.coordinate);
 
             this.highlightAvailableToMoveSquares(this.availableMoves);
@@ -78,18 +78,16 @@ export class Game {
     }
 
     activate(figureCoordinate) {
-        const square = this.field.findSquare(figureCoordinate);
-        if (square.hasFigure) {
 
+        const canActivate = (figure) => this._figureBelongsToCurrentPlayer(figure) && this._hasDal();
+
+        const square = this.field.findSquare(figureCoordinate);
+        if (canActivate(square.figure)) {
             if (!square.figure.isActive) {
                 this.logger.log(new ActivatedEvent('1', figureCoordinate));
                 square.figure.activate();
                 this.drawer.draw(this.field);
             }
-        } else {
-            const error = 'Нельзя активировать пустую клетку!';
-            this.logger.logError(error);
-            throw new Error(error);
         }
     }
 
@@ -107,7 +105,7 @@ export class Game {
 
     save() {
         const fieldSnapshot = this.field.makeSnapshot();
-        return new GameSnapshot(fieldSnapshot, [...this.dices], this.currentPlayer.turn);
+        return new GameSnapshot(fieldSnapshot, [...this.dices], this.currentPlayer.color);
     }
 
     restore(snapshot) {
@@ -130,5 +128,13 @@ export class Game {
         this.field.setHighlighting(this.availableMoves, false);
         this.highlightingCoordinates = [];
         this.drawer.draw(this.field);
+    }
+
+    _figureBelongsToCurrentPlayer(figure) {
+        return !!figure && figure.color === this.currentPlayer.color;     
+    }
+
+    _hasDal() {
+        return this.dices.some(dice => dice === 1);
     }
 }

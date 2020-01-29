@@ -39,6 +39,12 @@ canvas.addEventListener('click', (event) => {
     game.showPossibleMoves(translatedCoordinates);
 });
 
+canvas.addEventListener('dblclick', (event) => {
+    const mousePosition = getMousePosition(event);
+    const translatedCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
+    game.activate(translatedCoordinates);
+});
+
 
 
 function makeMove() {

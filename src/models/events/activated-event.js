@@ -7,6 +7,6 @@ export class ActivatedEvent extends BaseEvent {
     }
 
     toString() {
-        return `Игрок ${this.player} активировал фигуру ${this.from}`;
+        return `Игрок ${this.player} активировал фигуру ${this.from.x},${this.from.y}`;
     }
 }

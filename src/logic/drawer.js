@@ -39,6 +39,10 @@ export class CanvasDrawer {
         this._context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
+    _drawDices(dices) {
+        
+    }
+
     _drawSquare(x, y, highlighted) {
         let color = this.colorScheme.basicSquare;
         if (highlighted) {

@@ -1,12 +1,12 @@
 export class Player {
     
-    constructor(turn, name, figuresCounter) {
-        this.turn = turn;
+    constructor(color, name, figuresCounter) {
+        this.color = color;
         this.name = name;
         this.figuresCounter = 16;
     }
 
     getColor() {
-        return this.turn === 1 ? 'red' : 'green';
+        return this.color === 1 ? 'red' : 'green';
     }
 }
