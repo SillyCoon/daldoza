@@ -83,11 +83,9 @@ function getMousePosition(event) {
     }
 }
 
-
 function enableUndo(state) {
     btnUndo.disabled = !state;
 }
-
 
 // Фабрику бы, фабрику (или нет)
 function initDrawer() {

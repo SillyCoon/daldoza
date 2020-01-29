@@ -52,7 +52,6 @@ export class Field {
     } else {
       return fromSideToCenter();
     }
-
   }
 
   setHighlighting(highlightingSquaresCoordinates, highlighted) {
@@ -68,7 +67,7 @@ export class Field {
     if (currentSquareCoordinates.x === 1) {
       const res = currentSquareCoordinates.x + distance;
       const diff = res - this.middleRowLength;
-      if (diff <= 0) neededSquareCoordinates = { x: 1, y: res } 
+      if (diff <= 0) neededSquareCoordinates = { x: 1, y: res }
       else neededSquareCoordinates = { x: player === 1 ? 2 : 0, y: diff - 1 };
     } else {
       const res = currentSquareCoordinates.y - distance;
@@ -78,9 +77,56 @@ export class Field {
     return this.squares[neededSquareCoordinates.x][neededSquareCoordinates.y];
   }
 
+  hasFiguresOnWay(from, to, player) {
+    for (let square of this.iterateFromToExcludeFirst(player, from, to)) {
+      if (square.hasFigure && square.figure.color === player) return true
+    }
+    return false;
+  }
+
+  *iterate(direction = 1) {
+    const from = direction === 1 ? { x: 0, y: 0 } : { x: 2, y: 0 };
+    const to = direction === 1 ? { x: 2, y: 0 } : { x: 0, y: 0 };
+
+    yield* this.iterateFromTo(direction, from, to)
+  }
+
+  *iterateFromTo(direction, from, to, condition = () => true) {
+    let x = from.x;
+    let y = from.y;
+
+    do {
+      if (condition({ x, y })) {
+        yield this.squares[x][y];
+      }
+
+      if (x === 0 || x === 2) {
+        if (y === 0) {
+          x = 1;
+          y = 0;
+        } else {
+          y--;
+        }
+      } else {
+        if (y === this.middleRowLength - 1) {
+          x = direction === 1 ? 2 : 0;
+          y = this.sideRowLength - 1;
+        } else {
+          y++;
+        }
+      }
+    } while (x !== to.x || y !== to.y)
+    yield this.squares[to.x][to.y]; // last square
+  }
+
+  *iterateFromToExcludeFirst(direction, from, to) {
+    yield* this.iterateFromTo(direction, from, to, ({x, y}) => x !== from.x || y !== from.y);
+  }
+
   print() {
-    const desk = NotationConverter.toNotation(this).replace(/\|/g, '\n');
-    console.log(desk);
+    for (let square of this.iterate(1)) {
+      console.log(square);
+    }
   }
 
   makeSnapshot() {

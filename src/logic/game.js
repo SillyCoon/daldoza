@@ -32,23 +32,36 @@ export class Game {
         this.secondPlayer = new Player(2, second);
     }
 
+    get dicesThrown() {
+        return !!this.dices.length;
+    }
+
     showPossibleMoves(coordinates) {
 
-        if (!this.dices.length) {
-            this.logger.log('Сначала киньте кубики!');
-            return;
+        const currentSquareHasProperFigure = () => {
+            const currentSquare = this.field.findSquare(coordinates);
+            return !(!currentSquare.hasFigure || currentSquare.figure.color !== this.currentPlayer.turn || !currentSquare.figure.isActive);
         }
 
         this.removeHighlighting();
 
-        this.availableMoves = this.dices
-            .map(dice => this.field.getSquareByDistanceFromCurrent(coordinates, dice, this.currentPlayer.turn))
-            .filter(square => square.availableForMove(this.currentPlayer.turn))
-            .filter(square => hasNoCurrentPlayersFigureOnWay(square))
-            .map(square => square.coordinate);
+        if (!this.dicesThrown) {
+            this.logger.log('Сначала киньте кубики!');
+            return;
+        }
 
-        this.highlightAvailableToMoveSquares(this.availableMoves);
+        if (currentSquareHasProperFigure()) {
+
+            this.availableMoves = this.dices
+                .map(distance => this.field.getSquareByDistanceFromCurrent(coordinates, distance, this.currentPlayer.turn))
+                .filter(square => !this.field.hasFiguresOnWay(coordinates, square.coordinate, this.currentPlayer.turn))
+                .map(square => square.coordinate);
+
+            this.highlightAvailableToMoveSquares(this.availableMoves);
+        }
     }
+
+
 
     makeMove(from, to) {
         this.removeHighlighting();
@@ -102,10 +115,6 @@ export class Game {
         this.dices = [...snapshot.dices];
         this.currentPlayer = snapshot.currentPlayer === 1 ? this.firstPlayer : this.secondPlayer;
         this.drawer.draw(this.field);
-    }
-
-    hasNoCurrentPlayersFigureOnWay(square) {
-
     }
 
     highlightAvailableToMoveSquares(squaresCoordinates) {
