@@ -11,14 +11,11 @@ const colorScheme = new ColorScheme();
 const size = new Size();
 
 const drawer = initDrawer();
-const logger = initLogger(); 
+const logger = initLogger();
 
 const snapshots = [];
 
 const game = new Game(drawer, logger);
-
-const btnMove = document.querySelector('#btn-move');
-btnMove.addEventListener('click', makeMove);
 
 const btnRoll = document.querySelector('#btn-roll');
 btnRoll.addEventListener('click', rollDices);
@@ -32,8 +29,18 @@ enableUndo(false);
 
 canvas.addEventListener('click', (event) => {
     const mousePosition = getMousePosition(event);
-    const translatedCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
-    game.showPossibleMoves(translatedCoordinates);
+    const gameCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
+
+    if (event.button === 0) {
+        game.showPossibleMoves(gameCoordinates);
+    }
+});
+
+canvas.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+    const mousePosition = getMousePosition(event);
+    const gameCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
+    game.makeMove(game.currentFigure, gameCoordinates);
 });
 
 canvas.addEventListener('dblclick', (event) => {
@@ -42,19 +49,11 @@ canvas.addEventListener('dblclick', (event) => {
     game.activate(translatedCoordinates);
 });
 
-
-
 function makeMove() {
     save();
     const from = getCoordinates('move-from');
     const to = getCoordinates('move-to');
     game.makeMove(from, to);
-}
-
-function activate() {
-    save();
-    const coordinates = getCoordinates('activate-coordinates');
-    game.activate(coordinates);
 }
 
 function rollDices() {

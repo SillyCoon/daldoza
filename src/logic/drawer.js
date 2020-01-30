@@ -1,4 +1,3 @@
-import { CoordinateTranslator } from "./coordinate-translator.js";
 import { DiceDrawerFactory } from "./dice-drawer-factory.js";
 
 export class CanvasDrawer {
@@ -22,9 +21,12 @@ export class CanvasDrawer {
         }
     }
 
-    draw(field, dices) {
+    draw(field, dices, player) {
         this.clear();
+
+        this._setFillColor(player.color === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor);
         this._drawDices(dices);
+        this._drawCurrentPlayerStatistics(player);
         field.squares.forEach((row, x) => {
             this._drawXNumeration(x);
             row.forEach((square, y) => {
@@ -43,10 +45,17 @@ export class CanvasDrawer {
         this._context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
+    _drawCurrentPlayerStatistics(player) {
+        if (player) {
+            this._context.fillText(`Игрок: ${player.name}`, this._nextSquareCoordinate(7), this._nextSquareCoordinate(0));
+        }
+    }
+
     _drawDices(dices) {
         if (dices && dices.length) {
-            this._drawDice(9, 2, dices[0]);
-            this._drawDice(11, 2, dices[1]);
+            dices.forEach((dice, i) => {
+                this._drawDice(9 + i, 2, dice);
+            });
         }
     }
 
@@ -63,7 +72,6 @@ export class CanvasDrawer {
 
     _drawDice(x, y, value) {
         this._drawSquare(x, y);
-
         const valueDrawer = new DiceDrawerFactory(value);
         valueDrawer.makeDrawFunction()(this._context, this._centerOfSquare(x), this._centerOfSquare(y));
     }

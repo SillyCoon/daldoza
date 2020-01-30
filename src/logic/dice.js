@@ -12,4 +12,8 @@ export class Dice {
     _generateRandom(max) {
         return Math.floor(Math.random() * Math.floor(max)) + 1;
     }
+
+    static get dos() {
+        return 1;
+    }
 }

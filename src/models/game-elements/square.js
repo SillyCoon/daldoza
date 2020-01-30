@@ -6,6 +6,9 @@ export class Square {
         return !!this.figure;
     };
 
+    get availableToMakeMove() {
+        return this.highlighted;
+    }
 
     constructor(coordinate, figure, highlighted = false) {
         this.coordinate = coordinate;

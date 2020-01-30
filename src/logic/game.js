@@ -4,11 +4,8 @@ import { ActivatedEvent } from '../models/events/activated-event.js';
 import { Player } from '../models/game-elements/player.js';
 import { Dice } from './dice.js';
 import { GameSnapshot } from '../models/game-elements/game-snapshot.js';
-import { CoordinateTranslator } from './coordinate-translator.js';
 
 export class Game {
-
-    state;
 
     constructor(drawer, logger) {
 
@@ -18,13 +15,14 @@ export class Game {
         this.drawer = drawer;
         this.logger = logger;
         this.dices = [];
+        this.currentFigure = null;
 
         this.availableMoves = [];
 
         this.initPlayers();
 
         this.currentPlayer = this.firstPlayer;
-        this.drawer.draw(this.field);
+        this.draw();
     }
 
     initPlayers(first = 'A', second = 'B') {
@@ -52,8 +50,13 @@ export class Game {
         const currentSquare = this.field.findSquare(coordinates);
 
         if (figureReadyToMove(currentSquare.figure)) {
-            this.availableMoves = this.dices
-                .map(distance => this.field.getSquareByDistanceFromCurrent(coordinates, distance, this.currentPlayer.color))
+
+            this.currentFigure = coordinates;
+            
+            const distances = this.dices.length > 1 ? [...this.dices, this.dices[0] + this.dices[1]] : [...this.dices];
+
+            this.availableMoves = distances
+                .map(dice => this.field.getSquareByDistanceFromCurrent(coordinates, dice, this.currentPlayer.color))
                 .filter(square => !this.field.hasFiguresOnWay(coordinates, square.coordinate, this.currentPlayer.color))
                 .map(square => square.coordinate);
 
@@ -61,20 +64,22 @@ export class Game {
         }
     }
 
-
-
     makeMove(from, to) {
-        this.removeHighlighting();
         const fromSquare = this.field.findSquare(from);
         const toSquare = this.field.findSquare(to);
 
-        toSquare.figure = fromSquare.figure;
-        fromSquare.figure = null;
+        if (toSquare.availableToMakeMove) {
+            toSquare.figure = fromSquare.figure;
+            fromSquare.figure = null;
 
-        this.drawer.draw(this.field);
-        this.logger.log(new MoveEvent(this.currentPlayer.name, from, to));
+            this.recountDicesAfterMove(this.field.distance(fromSquare.coordinate, toSquare.coordinate));
+            this.logger.log(new MoveEvent(this.currentPlayer.name, from, to));
+            if (!this.dices.length) this.switchPlayer();
 
-        // this.switchPlayer();
+            this.draw();
+        }
+
+        this.removeHighlighting();
     }
 
     activate(figureCoordinate) {
@@ -86,22 +91,48 @@ export class Game {
             if (!square.figure.isActive) {
                 this.logger.log(new ActivatedEvent('1', figureCoordinate));
                 square.figure.activate();
-                this.drawer.draw(this.field);
+                this.recountDicesAfterMove(Dice.dos);
+                this.draw();
             }
         }
     }
 
     switchPlayer() {
-        this.currentPlayer = this.currentPlayer == this.firstPlayer
+        this.currentPlayer = this.currentPlayer.color === this.firstPlayer.color
             ? this.secondPlayer : this.firstPlayer;
     }
 
     rollDices() {
         this.dices = [];
         this.dices.push(this.dice.roll(), this.dice.roll())
-        this.dices.push(this.dices.reduce((a, b) => a + b));
         this.logger.log(`1 кубик: ${this.dices[0]}; 2 кубик: ${this.dices[1]}`);
-        this.drawer.draw(this.field, this.dices);
+        this.draw();
+    }
+
+    recountDicesAfterMove(distance) {
+        if (distance === this.dices[0] + this.dices[1]) this.dices = [];
+        const index = this.dices.indexOf(distance);
+        this.dices = this.dices.filter((_, i) => i !== index);
+    }
+
+
+    highlightAvailableToMoveSquares(squaresCoordinates) {
+
+        if (!squaresCoordinates || !squaresCoordinates.length) {
+            this.logger.log('У этой фигуры нет доступных ходов!');
+        }
+        this.field.setHighlighting(squaresCoordinates, true);
+        this.draw();
+    }
+
+    removeHighlighting() {
+        this.field.setHighlighting(this.availableMoves, false);
+        this.highlightingCoordinates = [];
+        this.draw();
+    }
+
+    draw() {
+        this.drawer.draw(this.field, this.dices, this.currentPlayer);
     }
 
     save() {
@@ -113,26 +144,11 @@ export class Game {
         this.field.restore(snapshot.fieldSnapshot);
         this.dices = [...snapshot.dices];
         this.currentPlayer = snapshot.currentPlayer === 1 ? this.firstPlayer : this.secondPlayer;
-        this.drawer.draw(this.field);
-    }
-
-    highlightAvailableToMoveSquares(squaresCoordinates) {
-
-        if (!squaresCoordinates || !squaresCoordinates.length) {
-            this.logger.log('У этой фигуры нет доступных ходов!');
-        }
-        this.field.setHighlighting(squaresCoordinates, true);
-        this.drawer.draw(this.field);
-    }
-
-    removeHighlighting() {
-        this.field.setHighlighting(this.availableMoves, false);
-        this.highlightingCoordinates = [];
-        this.drawer.draw(this.field);
+        this.draw();
     }
 
     _figureBelongsToCurrentPlayer(figure) {
-        return !!figure && figure.color === this.currentPlayer.color;     
+        return !!figure && figure.color === this.currentPlayer.color;
     }
 
     _hasDal() {

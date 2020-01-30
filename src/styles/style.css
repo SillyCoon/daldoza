@@ -1,5 +1,6 @@
 .game-container {
     display: inline-flex;
+    width: 100%;
 }
 
 .field {
@@ -7,13 +8,15 @@
     width: 600px;
     border: solid 1px black;
     margin-right: 10px;
-    margin-left: 50%;
+    margin-left: 30%;
 }
 
 #canvas {
     margin: 10px;
 }
 
-.controls .activate {
+.controls-container {
     margin-top: 10px;
+    margin-right: 100px;
+    width: 100%;
 }
