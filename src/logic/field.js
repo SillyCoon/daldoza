@@ -68,6 +68,17 @@ export class Field {
     }
   }
 
+  onlyOneFigureOfColor(color) {
+    
+    let figuresCounter = 0;
+
+    for (let square of this.iterate()) {
+      if (square.figure.color === color) figuresCounter++;
+      if (figuresCounter > 1) return false;
+    }
+    return true;
+  }
+
   hasFiguresOnWay(from, to, direction) {
     for (let square of this.iterateFromToExcludeFirst(direction, from, to)) {
       if (square.hasFigure && square.figure.color === direction) return true
@@ -145,7 +156,7 @@ export class Field {
       let j = 0;
       for (let c of col) {
         const figure = NotationConverter.charToFigure(c);
-        const currentSquare = this.findSquare({x: i, y: j});
+        const currentSquare = this.findSquare({ x: i, y: j });
         currentSquare.figure = figure;
         j++;
       }

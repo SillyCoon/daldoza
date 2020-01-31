@@ -30,8 +30,6 @@ export class Game {
         this.secondPlayer = new Player(2, second);
     }
 
-
-
     showPossibleMoves(coordinates) {
 
         const figureReadyToMove = (figure) => {
@@ -80,6 +78,10 @@ export class Game {
         }
 
         this.removeHighlighting();
+
+        if (this.field.onlyOneFigureOfColor(this.oppositePlayer.color)) {
+            this.logger.log(`Игрок ${this.currentPlayer.name} победил!`);
+        }
     }
 
     activate(figureCoordinate) {
@@ -145,6 +147,10 @@ export class Game {
         this.drawer.draw(this.field, this.dices, this.currentPlayer);
     }
 
+    winningCondition() {
+        
+    }
+
     save() {
         const fieldSnapshot = this.field.makeSnapshot();
         return new GameSnapshot(fieldSnapshot, [...this.dices], this.currentPlayer.color);
@@ -172,6 +178,10 @@ export class Game {
 
     get _dicesThrown() {
         return !!this.dices.length;
+    }
+
+    get oppositePlayer() {
+        return this.currentPlayer.color === this.firstPlayer.color ? this.secondPlayer : this.firstPlayer;
     }
 
     _hasDal() {
