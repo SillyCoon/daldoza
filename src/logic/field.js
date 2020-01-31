@@ -61,25 +61,37 @@ export class Field {
     });
   }
 
-  getSquareByDistanceFromCurrent(currentSquareCoordinates, distance, player) {
+  getSquareByDistanceFromCurrent(currentSquareCoordinates, distance, direction) {
 
-    let neededSquareCoordinates;
-    if (currentSquareCoordinates.x === 1) {
-      const res = currentSquareCoordinates.x + distance;
-      const diff = res - this.middleRowLength;
-      if (diff <= 0) neededSquareCoordinates = { x: 1, y: res }
-      else neededSquareCoordinates = { x: player === 1 ? 2 : 0, y: diff - 1 };
-    } else {
-      const res = currentSquareCoordinates.y - distance;
-      if (res >= 0) neededSquareCoordinates = { x: currentSquareCoordinates.x, y: res };
-      else neededSquareCoordinates = { x: 1, y: Math.abs(res) - 1 };
+    for (let nextSquare of this.iterateFromToExcludeFirst(direction, currentSquareCoordinates, currentSquareCoordinates)) {
+      if (this.distance(currentSquareCoordinates, nextSquare.coordinate) === distance) return nextSquare;
     }
-    return this.squares[neededSquareCoordinates.x][neededSquareCoordinates.y];
   }
 
-  hasFiguresOnWay(from, to, player) {
-    for (let square of this.iterateFromToExcludeFirst(player, from, to)) {
-      if (square.hasFigure && square.figure.color === player) return true
+  hasFiguresOnWay(from, to, direction) {
+    for (let square of this.iterateFromToExcludeFirst(direction, from, to)) {
+      if (square.hasFigure && square.figure.color === direction) return true
+    }
+    return false;
+  }
+
+  anyActiveFigure(color) {
+    return this._anyFigureSuitsCondition(
+      color,
+      (clr, figure) => figure && figure.active && figure.color === clr
+    )
+  }
+
+  anyNotActiveFigure(color) {
+    return this._anyFigureSuitsCondition(
+      color,
+      (clr, figure) => figure && !figure.active && figure.color === clr
+    )
+  }
+
+  _anyFigureSuitsCondition(color, condition) {
+    for (let square of this.iterate()) {
+      if (condition(color, square.figure)) return true;
     }
     return false;
   }
@@ -120,13 +132,7 @@ export class Field {
   }
 
   *iterateFromToExcludeFirst(direction, from, to) {
-    yield* this.iterateFromTo(direction, from, to, ({x, y}) => x !== from.x || y !== from.y);
-  }
-
-  print() {
-    for (let square of this.iterate(1)) {
-      console.log(square);
-    }
+    yield* this.iterateFromTo(direction, from, to, ({ x, y }) => x !== from.x || y !== from.y);
   }
 
   makeSnapshot() {

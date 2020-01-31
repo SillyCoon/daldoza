@@ -30,9 +30,7 @@ export class Game {
         this.secondPlayer = new Player(2, second);
     }
 
-    get dicesThrown() {
-        return !!this.dices.length;
-    }
+
 
     showPossibleMoves(coordinates) {
 
@@ -42,7 +40,7 @@ export class Game {
 
         this.removeHighlighting();
 
-        if (!this.dicesThrown) {
+        if (!this._dicesThrown) {
             this.logger.log('Сначала киньте кубики!');
             return;
         }
@@ -68,6 +66,8 @@ export class Game {
         const fromSquare = this.field.findSquare(from);
         const toSquare = this.field.findSquare(to);
 
+        if (!fromSquare || !toSquare) return;
+
         if (toSquare.availableToMakeMove) {
             toSquare.figure = fromSquare.figure;
             fromSquare.figure = null;
@@ -89,7 +89,7 @@ export class Game {
         const square = this.field.findSquare(figureCoordinate);
         if (canActivate(square.figure)) {
             if (!square.figure.isActive) {
-                this.logger.log(new ActivatedEvent('1', figureCoordinate));
+                this.logger.log(new ActivatedEvent(this.currentPlayer.name, figureCoordinate));
                 square.figure.activate();
                 this.recountDicesAfterMove(Dice.dos);
                 this.draw();
@@ -107,6 +107,13 @@ export class Game {
         this.dices.push(this.dice.roll(), this.dice.roll())
         this.logger.log(`1 кубик: ${this.dices[0]}; 2 кубик: ${this.dices[1]}`);
         this.draw();
+
+        if (this._noAvailableMoves) {
+            this.logger.log('Нет доступных ходов!');
+            // TODO: спорно
+            // this.switchPlayer(); 
+            // this.rollDices();
+        }
     }
 
     recountDicesAfterMove(distance) {
@@ -149,6 +156,19 @@ export class Game {
 
     _figureBelongsToCurrentPlayer(figure) {
         return !!figure && figure.color === this.currentPlayer.color;
+    }
+
+    get _noAvailableMoves() {
+        const noActiveFigureToMove = !this._hasDal() && !this.field.anyActiveFigure(this.currentPlayer.color);
+        const allFiguresBlocked = !this.availableMoves.length && this.dices.length;
+
+        return noActiveFigureToMove || allFiguresBlocked;
+
+        
+    }
+
+    get _dicesThrown() {
+        return !!this.dices.length;
     }
 
     _hasDal() {

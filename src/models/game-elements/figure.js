@@ -11,6 +11,10 @@ export class Figure {
         this.isActive = true;
     }
 
+    get active() {
+        return this.isActive;
+    }
+
     get isFirstPlayer() {
         return this.color === 1; 
     }
