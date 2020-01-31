@@ -140,12 +140,12 @@ export class Field {
   }
 
   restore(snapshot) {
-    const cols = snapshot.split('|');
+    const cols = snapshot.split('\n');
     cols.forEach((col, i) => {
       let j = 0;
       for (let c of col) {
         const figure = NotationConverter.charToFigure(c);
-        const currentSquare = this.findSquare(new Coordinate(`${i};${j}`))
+        const currentSquare = this.findSquare({x: i, y: j});
         currentSquare.figure = figure;
         j++;
       }

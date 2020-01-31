@@ -109,10 +109,13 @@ export class Game {
         this.draw();
 
         if (this._noAvailableMoves) {
-            this.logger.log('Нет доступных ходов!');
-            // TODO: спорно
-            // this.switchPlayer(); 
-            // this.rollDices();
+            this.logger.log(`Нет доступных ходов для игрока ${this.currentPlayer.name}!`);
+            // **** спорно ппц ****
+            setTimeout(() => {
+                this.switchPlayer(); 
+                this.dices = [];
+                this.draw();
+            }, 1000);
         }
     }
 
@@ -159,12 +162,12 @@ export class Game {
     }
 
     get _noAvailableMoves() {
-        const noActiveFigureToMove = !this._hasDal() && !this.field.anyActiveFigure(this.currentPlayer.color);
-        const allFiguresBlocked = !this.availableMoves.length && this.dices.length;
 
-        return noActiveFigureToMove || allFiguresBlocked;
+        const currentColor = this.currentPlayer.color;
+        const noActiveFigureToMove = !this._hasDal() && !this.field.anyActiveFigure(currentColor);
+        const allFiguresBlocked = !this.availableMoves.length && this.field.anyActiveFigure(currentColor);
 
-        
+        return this._dicesThrown && (noActiveFigureToMove || allFiguresBlocked);
     }
 
     get _dicesThrown() {

@@ -19,7 +19,7 @@ export class NotationConverter {
           notation += '*';
         }
       });
-      notation += '|';
+      notation += '\n';
     });
     return notation;
   }
@@ -27,28 +27,28 @@ export class NotationConverter {
   static charToFigure(c) {
 
     let isActive;
-    let player;
+    let color;
 
     switch (c) {
       case '*':
         return null;
       case '+':
         isActive = true;
-        player = 1;
+        color = 1;
         break;
       case '-':
         isActive = false;
-        player = 1;
+        color = 1;
         break
       case '1':
         isActive = true;
-        player = 2;
+        color = 2;
       case '0':
         isActive = false;
-        player = 2;
+        color = 2;
     }
 
-    const figure = new Figure(player);
+    const figure = new Figure(color);
     if(isActive) figure.activate();
     
     return figure;
