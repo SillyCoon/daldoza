@@ -29,7 +29,7 @@ export class NotationConverter {
     let isActive;
     let color;
 
-    switch (c) {
+    switch (c) { // . после квадрата - активный
       case '*':
         return null;
       case '+':
@@ -53,4 +53,19 @@ export class NotationConverter {
     
     return figure;
   }
+
+  static initialNotation(size = 16) {
+    
+    let firstPlayerRow = ''
+    let secondPlayerRow = '';
+    let middleRow = ''; 
+
+    for (let i = 0; i < 16; i++) {
+      firstPlayerRow += '-';
+      secondPlayerRow += '0';
+      middleRow += '*';
+    }
+    middleRow += '*'; 
+    return firstPlayerRow + '\n' + middleRow + '\n' + secondPlayerRow; 
+  } 
 }

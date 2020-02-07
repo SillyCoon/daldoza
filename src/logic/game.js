@@ -4,12 +4,18 @@ import { ActivatedEvent } from '../models/events/activated-event.js';
 import { Player } from '../models/game-elements/player.js';
 import { Dice } from './dice.js';
 import { GameSnapshot } from '../models/game-elements/game-snapshot.js';
+import { CommandType } from '../models/game-elements/command-type.js';
+import { GameStatus } from '../models/game-elements/enums/game-status.js';
 
 export class Game {
 
+    get oppositePlayer() {
+        return this.currentPlayer.color === this.firstPlayer.color ? this.secondPlayer : this.firstPlayer;
+    }
+
     constructor(drawer, logger) {
 
-        this.field = new Field(16);
+        this.field = Field.initial(16);
         this.dice = new Dice(4);
 
         this.drawer = drawer;
@@ -30,6 +36,21 @@ export class Game {
         this.secondPlayer = new Player(2, second);
     }
 
+    command(type, params) {
+        switch (type) {
+            case CommandType.Move:
+                return this.makeMoveImmutable(params.from, params.to);
+            case CommandType.Activate:
+                this.activate(params.figureCoordinate);
+                break;
+            case CommandType.Roll:
+                this.rollDices();
+                break;
+            default: throw new Error('No such command!');
+        }
+        return this.save();
+    }
+
     showPossibleMoves(coordinates) {
 
         const figureReadyToMove = (figure) => {
@@ -48,7 +69,7 @@ export class Game {
         if (figureReadyToMove(currentSquare.figure)) {
 
             this.currentFigure = coordinates;
-            
+
             const distances = this.dices.length > 1 ? [...this.dices, this.dices[0] + this.dices[1]] : [...this.dices];
 
             this.availableMoves = distances
@@ -84,6 +105,24 @@ export class Game {
         }
     }
 
+    
+    
+    makeMoveImmutable(from, to) {
+        const movedField = this.field.moveFigure(from, to); // гарантируем иммутабельность поля
+        const moveDistance = this.field.distance(from, to);
+        const remainingDices = this.removeUsedDices(moveDistance);
+        const nextPlayerColor = !!remainingDices.length ? this.currentPlayer.color : this.oppositePlayer.color;
+        const status = movedField.onlyOneFigureOfColor(nextPlayerColor)
+            ? this.currentPlayer.color === 1
+                ? GameStatus.FirstWin : GameStatus.SecondWin
+            : 'playing';
+
+        return new GameSnapshot(
+            movedField,
+            { color: nextPlayerColor, dices: remainingDices, selectedFigure: null },
+            status);
+    }
+
     activate(figureCoordinate) {
 
         const canActivate = (figure) => this._figureBelongsToCurrentPlayer(figure) && this._hasDal();
@@ -114,7 +153,7 @@ export class Game {
             this.logger.log(`Нет доступных ходов для игрока ${this.currentPlayer.name}!`);
             // **** спорно ппц ****
             setTimeout(() => {
-                this.switchPlayer(); 
+                this.switchPlayer();
                 this.dices = [];
                 this.draw();
             }, 1000);
@@ -127,6 +166,11 @@ export class Game {
         this.dices = this.dices.filter((_, i) => i !== index);
     }
 
+    removeUsedDices(distance) {
+        if (distance === this.dices[0] + this.dices[1]) return [];
+        const usedDiceIndex = this.dices.indexOf(distance);
+        return this.dices.filter((_, i) => i !== usedDiceIndex);
+    }
 
     highlightAvailableToMoveSquares(squaresCoordinates) {
 
@@ -148,12 +192,12 @@ export class Game {
     }
 
     winningCondition() {
-        
+
     }
 
     save() {
         const fieldSnapshot = this.field.makeSnapshot();
-        return new GameSnapshot(fieldSnapshot, [...this.dices], this.currentPlayer.color);
+        // return new GameSnapshot(fieldSnapshot, [...this.dices], this.currentPlayer.color);
     }
 
     restore(snapshot) {
@@ -180,9 +224,7 @@ export class Game {
         return !!this.dices.length;
     }
 
-    get oppositePlayer() {
-        return this.currentPlayer.color === this.firstPlayer.color ? this.secondPlayer : this.firstPlayer;
-    }
+
 
     _hasDal() {
         return this.dices.some(dice => dice === 1);

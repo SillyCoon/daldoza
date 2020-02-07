@@ -1,0 +1,1 @@
+export const GameStatus = Object.freeze({"Playing": 0, "FirstWin": 1, "SecondWin": 2});

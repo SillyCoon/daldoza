@@ -1,9 +1,12 @@
 export class GameSnapshot {
 
-    constructor(fieldSnapshot, dices, currentPlayer) {
+    constructor(fieldSnapshot, player, status) {
         this.fieldSnapshot = fieldSnapshot;
-        this.dices = dices;
-        this.currentPlayer = currentPlayer;
+        this.dices = player.dices;
+        this.currentPlayer = player.color;
+        this.selectedFigure = player.selectedFigure;
+        this.status = status;
+        console.log(player);
     }
 
 }

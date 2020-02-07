@@ -5,6 +5,7 @@ import { Logger } from './src/logic/logger.js';
 import { ColorScheme } from './src/models/draw/color-scheme.js';
 import { Size } from './src/models/draw/size.js';
 import { CoordinateTranslator } from './src/logic/coordinate-translator.js';
+import { CommandType } from './src/models/game-elements/command-type.js';
 
 const canvas = document.getElementById('canvas');
 const colorScheme = new ColorScheme();
@@ -40,7 +41,9 @@ canvas.addEventListener('contextmenu', (event) => {
     event.preventDefault();
     const mousePosition = getMousePosition(event);
     const gameCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
-    game.makeMove(game.currentFigure, gameCoordinates);
+    // game.makeMove(game.currentFigure, gameCoordinates);
+    const gameState = game.command(CommandType.Move, { from: game.currentFigure, to: gameCoordinates });
+    console.log(gameState);
 });
 
 canvas.addEventListener('dblclick', (event) => {
@@ -49,12 +52,6 @@ canvas.addEventListener('dblclick', (event) => {
     game.activate(translatedCoordinates);
 });
 
-function makeMove() {
-    save();
-    const from = getCoordinates('move-from');
-    const to = getCoordinates('move-to');
-    game.makeMove(from, to);
-}
 
 function rollDices() {
     game.rollDices();
@@ -73,9 +70,6 @@ function undo() {
     if (!snapshots.length) enableUndo(false);
 }
 
-function getCoordinates(id) {
-    return new Coordinate(document.getElementById(id).value);
-}
 
 function getMousePosition(event) {
     const canvasSize = canvas.getBoundingClientRect();

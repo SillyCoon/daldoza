@@ -1,6 +1,5 @@
 import { Square } from '../models/game-elements/square.js';
 import { Figure } from '../models/game-elements/figure.js';
-import { Coordinate } from '../models/game-elements/coordinate.js';
 import { NotationConverter } from './notation-converter.js';
 
 export class Field {
@@ -15,10 +14,16 @@ export class Field {
     return this.sideRowLength + 1;
   }
 
-  constructor(size = 16) {
-    this.sideRowLength = size;
+  constructor(snapshot) {
+    
+    this.sideRowLength = 16;
     this.colsLength = 3;
     this._init();
+    this.restore(snapshot);
+  }
+
+  static initial(size = 16) {
+    return new Field(NotationConverter.initialNotation(size));
   }
 
   _init() {
@@ -33,6 +38,20 @@ export class Field {
         );
       }
     }
+  }
+
+  moveFigure(from, to) {
+    const fromSquare = this.findSquare(from);
+    const toSquare = this.findSquare(to);
+
+    if (!fromSquare || !toSquare) throw new Error('Неправильный ход!');
+
+    if (toSquare.availableToMakeMove) {
+      toSquare.figure = fromSquare.figure;
+      fromSquare.figure = null;
+    }
+
+    return new Field(this.makeSnapshot());
   }
 
   findSquare(coordinate) {
@@ -73,7 +92,7 @@ export class Field {
     let figuresCounter = 0;
 
     for (let square of this.iterate()) {
-      if (square.figure.color === color) figuresCounter++;
+      if (square.figure && square.figure.color === color) figuresCounter++;
       if (figuresCounter > 1) return false;
     }
     return true;
