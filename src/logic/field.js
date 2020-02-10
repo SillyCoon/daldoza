@@ -15,7 +15,7 @@ export class Field {
   }
 
   constructor(snapshot) {
-    
+
     this.sideRowLength = 16;
     this.colsLength = 3;
     this._init();
@@ -40,9 +40,21 @@ export class Field {
     }
   }
 
+  activate(figureCoordinate, currentColor) {
+    const changingField = this.clone();
+    const selectedFigure = changingField.findSquare(figureCoordinate).figure;
+
+    if (selectedFigure && !selectedFigure.isActive && figure.color === currentColor) {
+      figure.activate();
+      return changingField;
+    }
+    return this;
+  }
+
   moveFigure(from, to) {
-    const fromSquare = this.findSquare(from);
-    const toSquare = this.findSquare(to);
+    const changingField = this.clone();
+    const fromSquare = changingField.findSquare(from);
+    const toSquare = changingField.findSquare(to);
 
     if (!fromSquare || !toSquare) throw new Error('Неправильный ход!');
 
@@ -51,7 +63,12 @@ export class Field {
       fromSquare.figure = null;
     }
 
-    return new Field(this.makeSnapshot());
+    return changingField;
+  }
+
+  pickFigure(coordinate) {
+    const figure = this.findSquare(coordinate).figure;
+    return figure;
   }
 
   findSquare(coordinate) {
@@ -88,7 +105,7 @@ export class Field {
   }
 
   onlyOneFigureOfColor(color) {
-    
+
     let figuresCounter = 0;
 
     for (let square of this.iterate()) {
@@ -180,6 +197,10 @@ export class Field {
         j++;
       }
     });
+  }
+
+  clone() {
+    return new Field(this.makeSnapshot());
   }
 
 }

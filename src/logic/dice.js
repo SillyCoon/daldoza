@@ -1,11 +1,10 @@
 export class Dice {
     
-
-    constructor(sides = 4) {
-        this.sides = sides;
+    get sides() {
+        return 4;
     }
 
-    roll() {
+    static roll() {
         return this._generateRandom(this.sides);
     }
 
@@ -13,7 +12,7 @@ export class Dice {
         return Math.floor(Math.random() * Math.floor(max)) + 1;
     }
 
-    static get dos() {
+    static get dal() {
         return 1;
     }
 }
