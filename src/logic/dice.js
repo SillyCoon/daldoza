@@ -1,15 +1,7 @@
 export class Dice {
     
-    get sides() {
-        return 4;
-    }
-
     static roll() {
-        return this._generateRandom(this.sides);
-    }
-
-    _generateRandom(max) {
-        return Math.floor(Math.random() * Math.floor(max)) + 1;
+        return (Math.floor(Math.random() * Math.floor(4)) + 1);
     }
 
     static get dal() {

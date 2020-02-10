@@ -6,7 +6,7 @@ import { Size } from './src/models/draw/size.js';
 import { CoordinateTranslator } from './src/logic/coordinate-translator.js';
 import { CommandType } from './src/models/game-elements/command-type.js';
 
-(function Application() {
+function Application() {
 
     const canvas = document.getElementById('canvas');
     const colorScheme = new ColorScheme();
@@ -15,12 +15,11 @@ import { CommandType } from './src/models/game-elements/command-type.js';
     const drawer = initDrawer();
     const logger = initLogger();
 
-    const snapshots = [];
+    const states = [];
 
-    const gameState = GameState.start(16);
-    // drawer.draw(gameState);
+    let currentState = GameState.start(16);
+    drawer.draw(currentState);
 
-    console.log(gameState);
 
     const btnRoll = document.querySelector('#btn-roll');
     btnRoll.addEventListener('click', rollDices);
@@ -52,27 +51,30 @@ import { CommandType } from './src/models/game-elements/command-type.js';
 
     canvas.addEventListener('dblclick', (event) => {
         const mousePosition = getMousePosition(event);
-        const translatedCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
-        gameState.activate(translatedCoordinates);
+        const figureCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
+        const nextState = currentState.command(CommandType.Activate, { figureCoordinates });
+        currentState = nextState;
+        drawer.draw(nextState);
     });
 
-
     function rollDices() {
-        snapshots.push(gameState);
-        gameState = gameState.rollDices();
+        states.push(currentState);
+        const nextState = currentState.command(CommandType.Roll);
+        currentState = nextState;
+        drawer.draw(nextState);
     }
 
     function save() {
         const snapshot = gameState.save();
-        snapshots.push(snapshot);
+        states.push(snapshot);
         enableUndo(true);
     }
 
     function undo() {
-        if (!snapshots.length) return;
-        const restoringSnapshot = snapshots.pop();
+        if (!states.length) return;
+        const restoringSnapshot = states.pop();
         gameState.restore(restoringSnapshot);
-        if (!snapshots.length) enableUndo(false);
+        if (!states.length) enableUndo(false);
     }
 
 
@@ -100,5 +102,7 @@ import { CommandType } from './src/models/game-elements/command-type.js';
         const logger = new Logger(logPane);
         return logger;
     }
-})()
+}
 
+
+Application();

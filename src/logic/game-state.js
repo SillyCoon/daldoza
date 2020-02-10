@@ -9,8 +9,8 @@ export class GameState {
         return this.currentPlayer.color === this.firstPlayer.color ? this.secondPlayer : this.firstPlayer;
     }
 
-    constructor(fieldSnapshot, player, status) {
-        this.fieldSnapshot = fieldSnapshot;
+    constructor(field, player, status) {
+        this.field = field;
         this.dices = player.dices;
         this.currentPlayer = player.color;
         this.selectedFigure = player.selectedFigure;
@@ -40,11 +40,9 @@ export class GameState {
             case CommandType.PickFigure:
                 return this.pickFigure(params.figureCoordinate);
             case CommandType.Roll:
-                this.rollDices();
-                break;
+                return this.roll();
             default: throw new Error('No such command!');
         }
-        return this.save();
     }
 
 

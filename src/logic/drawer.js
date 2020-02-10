@@ -21,13 +21,13 @@ export class CanvasDrawer {
         }
     }
 
-    draw(field, dices, player) {
+    draw(state) {
         this.clear();
 
-        this._setFillColor(player.color === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor);
-        this._drawDices(dices);
-        this._drawCurrentPlayerStatistics(player);
-        field.squares.forEach((row, x) => {
+        this._setFillColor(state.currentPlayer === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor);
+        this._drawDices(state.dices);
+        // this._drawCurrentPlayerStatistics(player);
+        state.field.squares.forEach((row, x) => {
             this._drawXNumeration(x);
             row.forEach((square, y) => {
                 this._context.beginPath();
