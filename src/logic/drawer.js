@@ -21,17 +21,17 @@ export class CanvasDrawer {
         }
     }
 
-    draw(state) {
+    draw(state, playerStatistic) {
         this.clear();
-
         this._setFillColor(state.currentPlayer === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor);
         this._drawDices(state.dices);
-        // this._drawCurrentPlayerStatistics(player);
+        this._drawCurrentPlayerStatistics(playerStatistic);
         state.field.squares.forEach((row, x) => {
             this._drawXNumeration(x);
             row.forEach((square, y) => {
                 this._context.beginPath();
-                this._drawSquare(x, y, square.highlighted);
+                const highlighted = state.isSquareAvailableToMove(square.coordinate);
+                this._drawSquare(x, y, highlighted);
                 this._drawYNumeration(y);
                 if (square.figure) {
                     this._drawFigure(square.figure, x, y);

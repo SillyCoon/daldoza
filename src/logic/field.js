@@ -44,8 +44,8 @@ export class Field {
     const changingField = this.clone();
     const selectedFigure = changingField.findSquare(figureCoordinate).figure;
 
-    if (selectedFigure && !selectedFigure.isActive && figure.color === currentColor) {
-      figure.activate();
+    if (selectedFigure && !selectedFigure.active && selectedFigure.color === currentColor) {
+      selectedFigure.activate();
       return changingField;
     }
     return this;
@@ -75,6 +75,13 @@ export class Field {
     return this.squares[coordinate.x][coordinate.y];
   }
 
+  getNotBlockedSquareCoordinateByDistanceFrom(fromCoordinate, distance, blockingColor) {
+    const squaresOnDistance = getSquareByDistanceFromCurrent(fromCoordinate, distance, blockingColor);
+    const notBlockedSquares = squaresOnDistance
+      .filter(square => !this.hasFiguresOnWay(fromCoordinate, square.coordinate, blockingColor));
+    return notBlockedSquares.map(square => square.coordinate);
+  }
+
   distance(from, to) {
 
     const fromSideToCenter = () => from.y + to.y + 1;
@@ -88,13 +95,6 @@ export class Field {
     } else {
       return fromSideToCenter();
     }
-  }
-
-  setHighlighting(highlightingSquaresCoordinates, highlighted) {
-    highlightingSquaresCoordinates.forEach(coordinates => {
-      const square = this.findSquare(coordinates);
-      square.highlighted = highlighted;
-    });
   }
 
   getSquareByDistanceFromCurrent(currentSquareCoordinates, distance, direction) {
@@ -197,6 +197,10 @@ export class Field {
         j++;
       }
     });
+  }
+
+  equals(otherField) {
+    this.makeSnapshot() === otherField.makeSnapshot();
   }
 
   clone() {

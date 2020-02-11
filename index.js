@@ -8,9 +8,13 @@ import { CommandType } from './src/models/game-elements/command-type.js';
 
 function Application() {
 
+    const firstPlayerName = "Дал";
+    const secondPlayerName = "Доз";
+
     const canvas = document.getElementById('canvas');
     const colorScheme = new ColorScheme();
     const size = new Size();
+    const fieldSize = 16;
 
     const drawer = initDrawer();
     const logger = initLogger();
@@ -18,7 +22,7 @@ function Application() {
     const states = [];
 
     let currentState = GameState.start(16);
-    drawer.draw(currentState);
+    draw(currentState);
 
 
     const btnRoll = document.querySelector('#btn-roll');
@@ -33,10 +37,16 @@ function Application() {
 
     canvas.addEventListener('click', (event) => {
         const mousePosition = getMousePosition(event);
-        const gameCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
+        const figureCoordinate = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
+        if (isValidCoordinate(figureCoordinate)) {
+            const nextState = currentState.command(CommandType.PickFigure, { figureCoordinate });
 
-        if (event.button === 0) {
-            gameState.showPossibleMoves(gameCoordinates);
+            if (!currentState.equals(nextState)) {
+                logger.log(`Игрок ${currentState.currentPlayerColor === 1 ? firstPlayerName : secondPlayerName} выбрал фигуру ${figureCoordinate.x};${figureCoordinate.y}`)
+                currentState = nextState;
+                draw(nextState);
+            }
+
         }
     });
 
@@ -46,22 +56,21 @@ function Application() {
         const gameCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
         // game.makeMove(game.currentFigure, gameCoordinates);
         const gameState = gameState.command(CommandType.Move, { from: gameState.currentFigure, to: gameCoordinates });
-        console.log(gameState);
     });
 
     canvas.addEventListener('dblclick', (event) => {
         const mousePosition = getMousePosition(event);
-        const figureCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
-        const nextState = currentState.command(CommandType.Activate, { figureCoordinates });
+        const figureCoordinate = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
+        const nextState = currentState.command(CommandType.Activate, { figureCoordinate });
         currentState = nextState;
-        drawer.draw(nextState);
+        draw(nextState);
     });
 
     function rollDices() {
         states.push(currentState);
         const nextState = currentState.command(CommandType.Roll);
         currentState = nextState;
-        drawer.draw(nextState);
+        draw(nextState);
     }
 
     function save() {
@@ -101,6 +110,22 @@ function Application() {
         const logPane = document.querySelector('#log-pane');
         const logger = new Logger(logPane);
         return logger;
+    }
+
+    function isValidCoordinate({ x, y }) {
+        const isValid = (x >= 0 && x < 3) && (y >= 0 && (y < fieldSize || (x === 1 && y < fieldSize + 1)));
+        if (!isValid) console.log('click outside the field');
+        return isValid;
+    }
+
+    function playerStatistics(gameState) {
+        return ({
+            name: gameState.currentPlayerColor === 1 ? firstPlayerName : secondPlayerName
+        });
+    }
+
+    function draw(state) {
+        drawer.draw(state, playerStatistics(state))
     }
 }
 
