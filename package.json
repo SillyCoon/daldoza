@@ -1,6 +1,6 @@
 {
   "name": "daldoza",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "daldoza game",
   "main": "index.js",
   "scripts": {
