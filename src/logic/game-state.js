@@ -5,8 +5,8 @@ import { GameStatus } from '../models/game-elements/enums/game-status.js';
 
 export class GameState {
 
-    get oppositePlayer() {
-        return this.currentPlayerColor.color === this.firstPlayer.color ? this.secondPlayer : this.firstPlayer;
+    get oppositePlayerColor() {
+        return this.currentPlayerColor === 1 ? 2 : 1;
     }
 
     get distances() {
@@ -14,14 +14,21 @@ export class GameState {
     }
 
     get possibleMoves() {
-
+        let result;
         if (this._selectedFigureReadyToMove()) {
-            return this.distances.map(distance =>
-                this.field.getNotBlockedSquareCoordinateByDistanceFrom(coordinates, distance, this.currentPlayerColor)
+            result = this.distances.map(distance =>
+                this.field.getNotBlockedSquareCoordinateByDistanceFrom(this.selectedFigure.coordinate, distance, this.currentPlayerColor)
             );
+        } else {
+            result = [];
         }
-        return [];
 
+        // Просто балуюсь возможностями js, вообще не думаю, что этот миксин прям хорошая идея
+        result.hasMove = (checkingMove) => {
+            return !!result.filter(move => JSON.stringify(move) === JSON.stringify(checkingMove)).length;
+        } 
+
+        return result;
     }
 
     constructor(field, player, status) {
@@ -47,10 +54,11 @@ export class GameState {
     }
 
     equals(otherState) {
-        return false;
+        return false; // TODO: complete
         return this.field.equals(otherState.field) &&
             this.currentPlayerColor === otherState.currentPlayerColor &&
-            this.status === otherState.status; // TODO: Complete
+            this.status === otherState.status &&
+            this.dices.filter(dice => this.otherState.dices.includes(dice))
     }
 
     command(type, params) {
@@ -77,7 +85,7 @@ export class GameState {
         if (this._hasDal()) {
             const changedField = this.field.activate(figureCoordinate, this.currentPlayerColor);
             const remainingDices = this._removeUsedDices(Dice.dal);
-            const nextPlayerColor = !!remainingDices.length ? this.currentPlayerColor.color : this.oppositePlayer.color;
+            const nextPlayerColor = !!remainingDices.length ? this.currentPlayerColor : this.oppositePlayerColor;
             const status = this.status;
             return new GameState(changedField, { color: nextPlayerColor, dices: remainingDices, selectedFigure: null }, status);
         } else {
@@ -103,7 +111,7 @@ export class GameState {
         const remainingDices = this._removeUsedDices(moveDistance);
         const nextPlayerColor = !!remainingDices.length ? this.currentPlayerColor : this.oppositePlayer.color;
         const status = movedField.onlyOneFigureOfColor(nextPlayerColor)
-            ? this.currentPlayerColor.color === 1
+            ? this.currentPlayerColor === 1
                 ? GameStatus.FirstWin : GameStatus.SecondWin
             : GameStatus.Playing;
 
@@ -114,7 +122,7 @@ export class GameState {
     }
 
     isSquareAvailableToMove(squareCoordinate) {
-        return this.possibleMoves.includes(move => (move.x === squareCoordinate.x) && (move.y === squareCoordinate.y))
+        return this.possibleMoves.hasMove(squareCoordinate);
     }
 
     _selectedFigureReadyToMove() {

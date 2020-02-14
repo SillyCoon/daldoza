@@ -15,7 +15,7 @@ export class ClickCommand {
         this.app.drawer.draw(nextState);
     }
 
-    saveBackup() {
+    makeBackup() {
         this.backup = this.game.save();
     }
 

@@ -76,10 +76,11 @@ export class Field {
   }
 
   getNotBlockedSquareCoordinateByDistanceFrom(fromCoordinate, distance, blockingColor) {
-    const squaresOnDistance = getSquareByDistanceFromCurrent(fromCoordinate, distance, blockingColor);
-    const notBlockedSquares = squaresOnDistance
-      .filter(square => !this.hasFiguresOnWay(fromCoordinate, square.coordinate, blockingColor));
-    return notBlockedSquares.map(square => square.coordinate);
+    const squareOnDistance = this.getSquareByDistanceFromCurrent(fromCoordinate, distance, blockingColor);
+    if (this.hasFiguresOnWay(fromCoordinate, squareOnDistance.coordinate, blockingColor)) {
+      return null;
+    } 
+    return squareOnDistance.coordinate;
   }
 
   distance(from, to) {

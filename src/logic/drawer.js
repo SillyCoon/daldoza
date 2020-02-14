@@ -23,7 +23,7 @@ export class CanvasDrawer {
 
     draw(state, playerStatistic) {
         this.clear();
-        this._setFillColor(state.currentPlayer === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor);
+        this._setFillColor(state.currentPlayerColor === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor);
         this._drawDices(state.dices);
         this._drawCurrentPlayerStatistics(playerStatistic);
         state.field.squares.forEach((row, x) => {
