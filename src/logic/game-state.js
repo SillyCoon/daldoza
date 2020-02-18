@@ -5,6 +5,16 @@ import { GameStatus } from '../models/game-elements/enums/game-status.js';
 
 export class GameState {
 
+    get snapshot() {
+        return ({
+            field: this.field,
+            dices: this.dices,
+            currentPlayerColor: this.color,
+            selectedFigure: this.selectedFigure,
+            status: this.status
+        });
+    }
+
     get oppositePlayerColor() {
         return this.currentPlayerColor === 1 ? 2 : 1;
     }
@@ -26,7 +36,7 @@ export class GameState {
         // Просто балуюсь возможностями js, вообще не думаю, что этот миксин прям хорошая идея
         result.hasMove = (checkingMove) => {
             return !!result.filter(move => JSON.stringify(move) === JSON.stringify(checkingMove)).length;
-        } 
+        }
 
         return result;
     }
@@ -54,17 +64,13 @@ export class GameState {
     }
 
     equals(otherState) {
-        return false; // TODO: complete
-        return this.field.equals(otherState.field) &&
-            this.currentPlayerColor === otherState.currentPlayerColor &&
-            this.status === otherState.status &&
-            this.dices.filter(dice => this.otherState.dices.includes(dice))
+        return JSON.stringify(this.snapshot) === JSON.stringify(otherState.snapshot);
     }
 
     command(type, params) {
         switch (type) {
             case CommandType.Move:
-                return this.makeMove(params.from, params.to);
+                return this.makeMove(this.selectedFigure.coordinate, params.to);
             case CommandType.Activate:
                 return this.activate(params.figureCoordinate);
             case CommandType.PickFigure:
@@ -106,19 +112,23 @@ export class GameState {
     }
 
     makeMove(from, to) {
-        const movedField = this.field.moveFigure(from, to); // гарантируем иммутабельность поля
-        const moveDistance = this.field.distance(from, to);
-        const remainingDices = this._removeUsedDices(moveDistance);
-        const nextPlayerColor = !!remainingDices.length ? this.currentPlayerColor : this.oppositePlayer.color;
-        const status = movedField.onlyOneFigureOfColor(nextPlayerColor)
-            ? this.currentPlayerColor === 1
-                ? GameStatus.FirstWin : GameStatus.SecondWin
-            : GameStatus.Playing;
+        if (this.isSquareAvailableToMove(to)) {
+            const movedField = this.field.moveFigure(from, to)
+            const moveDistance = this.field.distance(from, to);
+            const remainingDices = this._removeUsedDices(moveDistance);
+            const nextPlayerColor = !!remainingDices.length ? this.currentPlayerColor : this.oppositePlayerColor;
+            const status = movedField.onlyOneFigureOfColor(nextPlayerColor)
+                ? this.currentPlayerColor === 1
+                    ? GameStatus.FirstWin : GameStatus.SecondWin
+                : GameStatus.Playing;
 
-        return new GameState(
-            movedField,
-            { color: nextPlayerColor, dices: remainingDices, selectedFigure: null },
-            status);
+            return new GameState(
+                movedField,
+                { color: nextPlayerColor, dices: remainingDices, selectedFigure: null },
+                status);
+        }
+
+        return this;
     }
 
     isSquareAvailableToMove(squareCoordinate) {
@@ -139,5 +149,4 @@ export class GameState {
     _hasDal() {
         return this.dices.some(dice => dice === 1);
     }
-
 }

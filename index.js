@@ -28,9 +28,6 @@ function Application() {
     const btnRoll = document.querySelector('#btn-roll');
     btnRoll.addEventListener('click', rollDices);
 
-    const btnSave = document.querySelector('#btn-save');
-    btnSave.addEventListener('click', save);
-
     const btnUndo = document.querySelector('#btn-undo');
     btnUndo.addEventListener('click', undo);
     enableUndo(false);
@@ -46,16 +43,17 @@ function Application() {
                 currentState = nextState;
                 draw(nextState);
             }
-
         }
     });
 
     canvas.addEventListener('contextmenu', (event) => {
         event.preventDefault();
         const mousePosition = getMousePosition(event);
-        const gameCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
-        // game.makeMove(game.currentFigure, gameCoordinates);
-        const gameState = gameState.command(CommandType.Move, { from: gameState.currentFigure, to: gameCoordinates });
+        const moveTo = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
+        states.push(currentState);
+        const nextState = currentState.command(CommandType.Move, {to: moveTo });
+        currentState = nextState;
+        draw(nextState);
     });
 
     canvas.addEventListener('dblclick', (event) => {
@@ -72,13 +70,7 @@ function Application() {
         currentState = nextState;
         draw(nextState);
     }
-
-    function save() {
-        const snapshot = gameState.save();
-        states.push(snapshot);
-        enableUndo(true);
-    }
-
+    
     function undo() {
         if (!states.length) return;
         const restoringSnapshot = states.pop();

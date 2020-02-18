@@ -1,6 +1,7 @@
 import { Square } from '../models/game-elements/square.js';
 import { Figure } from '../models/game-elements/figure.js';
 import { NotationConverter } from './notation-converter.js';
+import { FieldException } from '../models/game-elements/exceptions/field-exception.js';
 
 export class Field {
 
@@ -56,12 +57,10 @@ export class Field {
     const fromSquare = changingField.findSquare(from);
     const toSquare = changingField.findSquare(to);
 
-    if (!fromSquare || !toSquare) throw new Error('Неправильный ход!');
+    if (!fromSquare || !toSquare) throw new FieldException('Неправильный ход!');
 
-    if (toSquare.availableToMakeMove) {
-      toSquare.figure = fromSquare.figure;
-      fromSquare.figure = null;
-    }
+    toSquare.figure = fromSquare.figure;
+    fromSquare.figure = null;
 
     return changingField;
   }
@@ -79,7 +78,7 @@ export class Field {
     const squareOnDistance = this.getSquareByDistanceFromCurrent(fromCoordinate, distance, blockingColor);
     if (this.hasFiguresOnWay(fromCoordinate, squareOnDistance.coordinate, blockingColor)) {
       return null;
-    } 
+    }
     return squareOnDistance.coordinate;
   }
 
