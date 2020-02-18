@@ -73,9 +73,10 @@ function Application() {
     
     function undo() {
         if (!states.length) return;
-        const restoringSnapshot = states.pop();
-        gameState.restore(restoringSnapshot);
+        const previousState = states.pop();
+        currentState = previousState;
         if (!states.length) enableUndo(false);
+        draw(currentState);
     }
 
 
