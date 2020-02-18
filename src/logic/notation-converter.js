@@ -61,7 +61,7 @@ export class NotationConverter {
     let secondPlayerRow = '';
     let middleRow = ''; 
 
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < size; i++) {
       firstPlayerRow += '-';
       secondPlayerRow += '0';
       middleRow += '*';

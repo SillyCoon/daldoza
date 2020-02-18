@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/SillyCoon/daldoza/issues"
   },
-  "homepage": "https://github.com/SillyCoon/daldoza#readme"
+  "homepage": "https://github.com/SillyCoon/daldoza#readme",
+  "devDependencies": {
+    "eslint": "^6.8.0"
+  },
+  "dependencies": {}
 }

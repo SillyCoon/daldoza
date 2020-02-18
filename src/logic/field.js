@@ -127,7 +127,7 @@ export class Field {
     return this._anyFigureSuitsCondition(
       color,
       (clr, figure) => figure && !figure.active && figure.color === clr
-    )
+    );
   }
 
   _anyFigureSuitsCondition(color, condition) {
@@ -141,7 +141,7 @@ export class Field {
     const from = direction === 1 ? { x: 0, y: 0 } : { x: 2, y: 0 };
     const to = direction === 1 ? { x: 2, y: 0 } : { x: 0, y: 0 };
 
-    yield* this.iterateFromTo(direction, from, to)
+    yield* this.iterateFromTo(direction, from, to);
   }
 
   *iterateFromTo(direction, from, to, condition = () => true) {

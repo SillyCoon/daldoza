@@ -96,7 +96,7 @@ export class GameState {
         if (this._hasDal()) {
             const changedField = this.field.activate(figureCoordinate, this.currentPlayerColor);
             const remainingDices = this._removeUsedDices(Dice.dal);
-            const nextPlayerColor = !!remainingDices.length ? this.currentPlayerColor : this.oppositePlayerColor;
+            const nextPlayerColor = remainingDices.length ? this.currentPlayerColor : this.oppositePlayerColor;
             const status = this.status;
             return new GameState(changedField, {
                 color: nextPlayerColor,
@@ -126,10 +126,10 @@ export class GameState {
 
     makeMove(from, to) {
         if (this.isSquareAvailableToMove(to)) {
-            const movedField = this.field.moveFigure(from, to)
+            const movedField = this.field.moveFigure(from, to);
             const moveDistance = this.field.distance(from, to);
             const remainingDices = this._removeUsedDices(moveDistance);
-            const nextPlayerColor = !!remainingDices.length ? this.currentPlayerColor : this.oppositePlayerColor;
+            const nextPlayerColor = remainingDices.length ? this.currentPlayerColor : this.oppositePlayerColor;
             const status = movedField.onlyOneFigureOfColor(nextPlayerColor) ?
                 this.currentPlayerColor === 1 ?
                     GameStatus.FirstWin : GameStatus.SecondWin :
