@@ -5,12 +5,6 @@ import { FieldException } from '../models/game-elements/exceptions/field-excepti
 
 export class Field {
 
-  squares = [];
-
-  sideRowLength;
-
-  colsLength;
-
   get middleRowLength() {
     return this.sideRowLength + 1;
   }
@@ -117,7 +111,7 @@ export class Field {
 
   hasFiguresOnWay(from, to, direction) {
     for (let square of this.iterateFromToExcludeFirst(direction, from, to)) {
-      if (square.hasFigure && square.figure.color === direction) return true
+      if (square.hasFigure && square.figure.color === direction) return true;
     }
     return false;
   }
@@ -126,7 +120,7 @@ export class Field {
     return this._anyFigureSuitsCondition(
       color,
       (clr, figure) => figure && figure.active && figure.color === clr
-    )
+    );
   }
 
   anyNotActiveFigure(color) {
@@ -174,7 +168,7 @@ export class Field {
           y++;
         }
       }
-    } while (x !== to.x || y !== to.y)
+    } while (x !== to.x || y !== to.y);
     yield this.squares[to.x][to.y]; // last square
   }
 

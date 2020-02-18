@@ -1,10 +1,8 @@
 export class Square {
-    coordinate;
-    figure;
 
     get hasFigure() {
         return !!this.figure;
-    };
+    }
 
     get availableToMakeMove() {
         return this.highlighted;

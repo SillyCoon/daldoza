@@ -1,4 +1,4 @@
-import { Figure } from '../models/game-elements/figure.js'
+import { Figure } from '../models/game-elements/figure.js';
 
 export class NotationConverter {
 
@@ -39,10 +39,11 @@ export class NotationConverter {
       case '-':
         isActive = false;
         color = 1;
-        break
+        break;
       case '1':
         isActive = true;
         color = 2;
+        break;
       case '0':
         isActive = false;
         color = 2;
@@ -56,7 +57,7 @@ export class NotationConverter {
 
   static initialNotation(size = 16) {
     
-    let firstPlayerRow = ''
+    let firstPlayerRow = '';
     let secondPlayerRow = '';
     let middleRow = ''; 
 

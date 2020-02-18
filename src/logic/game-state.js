@@ -1,6 +1,6 @@
-import { Field } from './field.js'
+import { Field } from './field.js';
 import { Dice } from './dice.js';
-import { CommandType } from '../models/game-elements/command-type.js';
+import { CommandType } from '../models/game-elements/enums/command-type.js';
 import { GameStatus } from '../models/game-elements/enums/game-status.js';
 
 export class GameState {
@@ -36,7 +36,7 @@ export class GameState {
         // Просто балуюсь возможностями js, вообще не думаю, что этот миксин прям хорошая идея
         result.hasMove = (checkingMove) => {
             return !!result.filter(move => JSON.stringify(move) === JSON.stringify(checkingMove)).length;
-        }
+        };
 
         return result;
     }
@@ -77,14 +77,19 @@ export class GameState {
                 return this.pickFigure(params.figureCoordinate);
             case CommandType.Roll:
                 return this.roll();
-            default: throw new Error('No such command!');
+            default:
+                throw new Error('No such command!');
         }
     }
 
 
     roll() {
         const rolledDices = [Dice.roll(), Dice.roll()];
-        return new GameState(this.field, { color: this.currentPlayerColor, dices: rolledDices, selectedFigure: null }, this.status);
+        return new GameState(this.field, {
+            color: this.currentPlayerColor,
+            dices: rolledDices,
+            selectedFigure: null
+        }, this.status);
     }
 
     activate(figureCoordinate) {
@@ -93,7 +98,11 @@ export class GameState {
             const remainingDices = this._removeUsedDices(Dice.dal);
             const nextPlayerColor = !!remainingDices.length ? this.currentPlayerColor : this.oppositePlayerColor;
             const status = this.status;
-            return new GameState(changedField, { color: nextPlayerColor, dices: remainingDices, selectedFigure: null }, status);
+            return new GameState(changedField, {
+                color: nextPlayerColor,
+                dices: remainingDices,
+                selectedFigure: null
+            }, status);
         } else {
             return this;
         }
@@ -106,7 +115,11 @@ export class GameState {
         selectedFigure.coordinate = figureCoordinate;
 
         if (selectedFigure && selectedFigure.color === this.currentPlayerColor) {
-            return new GameState(this.field, { color: this.currentPlayerColor, dices: this.dices, selectedFigure }, this.status);
+            return new GameState(this.field, {
+                color: this.currentPlayerColor,
+                dices: this.dices,
+                selectedFigure
+            }, this.status);
         }
         return this;
     }
@@ -117,14 +130,17 @@ export class GameState {
             const moveDistance = this.field.distance(from, to);
             const remainingDices = this._removeUsedDices(moveDistance);
             const nextPlayerColor = !!remainingDices.length ? this.currentPlayerColor : this.oppositePlayerColor;
-            const status = movedField.onlyOneFigureOfColor(nextPlayerColor)
-                ? this.currentPlayerColor === 1
-                    ? GameStatus.FirstWin : GameStatus.SecondWin
-                : GameStatus.Playing;
+            const status = movedField.onlyOneFigureOfColor(nextPlayerColor) ?
+                this.currentPlayerColor === 1 ?
+                    GameStatus.FirstWin : GameStatus.SecondWin :
+                GameStatus.Playing;
 
             return new GameState(
-                movedField,
-                { color: nextPlayerColor, dices: remainingDices, selectedFigure: null },
+                movedField, {
+                color: nextPlayerColor,
+                dices: remainingDices,
+                selectedFigure: null
+            },
                 status);
         }
 

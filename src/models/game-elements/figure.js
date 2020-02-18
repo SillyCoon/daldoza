@@ -1,10 +1,9 @@
 export class Figure {
     
-    isActive = false;
-    canMove = false;
-
     constructor(color) {
         this.color = color;
+        this.isActive = false;
+        this.canMove = false;
     }
 
     activate() {
