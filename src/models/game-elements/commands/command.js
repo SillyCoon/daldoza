@@ -1,25 +1,33 @@
-import { Game } from "../../../logic/game-state";
+export class Command {
 
-export class ClickCommand {
-    
-    constructor(app, game) {
+    constructor(app, gameState, context) {
         this.app = app;
-        this.game = game;
+        this.gameState = gameState;
+        this.context = context;
     }
 
-    execute(context){
-        const mousePosition = this.app.getMousePosition(context);
-        const pickedFigureCoordinate = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
-        const nextState = this.app.currentState.command(CommandType.PickFigure, {figureCoordinates: pickedFigureCoordinate});
+    execute() {
+        if (this.context) {
+            this.app.getActionCoordinate(this.context);
+        }
+        const nextState = this._runCommand();
+        if (!nextState) {
+            return null;
+        }
         this.app.currentState = nextState;
         this.app.drawer.draw(nextState);
+        return this.gameState;
+    }
+
+    _runCommand() {
+        // implemented in siblings
+        return null;
     }
 
     makeBackup() {
-        this.backup = this.game.save();
+        this.backup = this.gameState;
     }
 
     undo() {
-        game = new Game(this.backup);
     }
 }

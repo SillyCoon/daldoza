@@ -22,6 +22,7 @@ export class Field {
   }
 
   _init() {
+    this.squares = [];
     for (let i = 0; i < this.colsLength; i++) {
       this.squares.push([]);
       const rowLength = (i === 1) ? this.middleRowLength : this.sideRowLength;
