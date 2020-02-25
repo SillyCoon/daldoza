@@ -4,8 +4,8 @@ import { Logger } from './src/logic/logger.js';
 import { ColorScheme } from './src/models/draw/color-scheme.js';
 import { Size } from './src/models/draw/size.js';
 import { CoordinateTranslator } from './src/logic/coordinate-translator.js';
-import { RollCommand } from './src/models/game-elements/commands/roll-command.js';
-import { ActivateCommand } from './src/models/game-elements/commands/activate-command.js';
+import { RollCommand } from './src/logic/commands/roll-command.js';
+import { ActivateCommand } from './src/logic/commands/activate-command.js';
 
 export class App {
 
