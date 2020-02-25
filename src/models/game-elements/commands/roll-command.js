@@ -2,7 +2,7 @@ import { Command } from './command.js';
 import { CommandType } from '../enums/command-type.js';
 
 export class RollCommand extends Command {
-    constructor(app, gameState, context){
+    constructor(app, gameState, context = null){
         super(app, gameState, context);
     }
 

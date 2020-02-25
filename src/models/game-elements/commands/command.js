@@ -7,27 +7,21 @@ export class Command {
     }
 
     execute() {
-        if (this.context) {
-            this.app.getActionCoordinate(this.context);
-        }
         const nextState = this._runCommand();
         if (!nextState) {
             return null;
         }
         this.app.currentState = nextState;
-        this.app.drawer.draw(nextState);
-        return this.gameState;
+        this.app.draw(nextState);
+        return nextState;
     }
 
     _runCommand() {
-        // implemented in siblings
-        return null;
-    }
-
-    makeBackup() {
-        this.backup = this.gameState;
+        return null;  // implemented in siblings
     }
 
     undo() {
+        this.app.currentState = this.gameState;
+        this.app.draw(this.gameState);
     }
 }
