@@ -6,6 +6,8 @@ import { Size } from './src/models/draw/size.js';
 import { CoordinateTranslator } from './src/logic/coordinate-translator.js';
 import { RollCommand } from './src/logic/commands/roll-command.js';
 import { ActivateCommand } from './src/logic/commands/activate-command.js';
+import { PickCommand } from './src/logic/commands/pick-command.js';
+import { MoveCommand } from './src/logic/commands/move-command.js';
 
 export class App {
 
@@ -41,7 +43,12 @@ export class App {
         btnRoll.addEventListener('click', () => this.rollDices().then(() => enableUndoButton(true)));
         btnUndo.addEventListener('click', () => this.undo().then(() => enableUndoButton(false)));
 
-        this.canvas.addEventListener('dblclick', event => this.activateFigure(event));
+        this.canvas.addEventListener('dblclick', event => this.activate(event).then(() => enableUndoButton(true)));
+        this.canvas.addEventListener('click', (event) => this.pickFigure(event).then(() => enableUndoButton(true)));
+        this.canvas.addEventListener('contextmenu', event => {
+            this.move(event).then(() => enableUndoButton(true));
+            event.preventDefault();
+        });
 
         function enableUndoButton(flag) {
             btnUndo.disabled = !flag;
@@ -53,9 +60,18 @@ export class App {
         return this.executeCommand(new RollCommand(this, this.currentState, null));
     }
 
-    activateFigure(event) {
+    pickFigure(event) {
+        return this.executeCommand(new PickCommand(this, this.currentState, event));
+    }
+
+    activate(event) {
         return this.executeCommand(new ActivateCommand(this, this.currentState, event));
     }
+
+    move(event) {
+        return this.executeCommand(new MoveCommand(this, this.currentState, event));
+    }
+
 
     undo() {
         const lastCommand = this.commands.pop();
@@ -66,29 +82,7 @@ export class App {
             if (!this.commands.length) resolve();
         })
     }
-
-    // canvas.addEventListener('click', (event) => {
-    //     const figureCoordinate = getActionCoordinate(event);
-    //     if (isValidCoordinate(figureCoordinate)) {
-    //         const nextState = currentState.command(CommandType.PickFigure, { figureCoordinate });
-
-    //         if (!currentState.equals(nextState)) {
-    //             logger.log(`Игрок ${currentState.currentPlayerColor === 1 ? firstPlayerName : secondPlayerName} выбрал фигуру ${figureCoordinate.x};${figureCoordinate.y}`)
-    //             currentState = nextState;
-    //             draw(nextState);
-    //         }
-    //     }
-    // });
-
-    // canvas.addEventListener('contextmenu', (event) => {
-    //     event.preventDefault();
-    //     const moveTo = getActionCoordinate(event);
-    //     states.push(currentState);
-    //     const nextState = currentState.command(CommandType.Move, { to: moveTo });
-    //     currentState = nextState;
-    //     draw(nextState);
-    // });
-
+    
     executeCommand(command) {
         if (command.execute()) {
             this.commands.push(command);

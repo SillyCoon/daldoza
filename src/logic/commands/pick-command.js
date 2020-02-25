@@ -1,15 +1,15 @@
 import { Command } from "./command.js";
 import { CommandType } from '/src/models/game-elements/enums/command-type.js';
 
-export class MoveCommand extends Command {
+export class PickCommand extends Command {
     constructor(app, gameState, context) {
         super(app, gameState, context);
     }
 
     _runCommand() {
-        const to = this.app.getActionCoordinate(this.context);
-        if (to) {
-            return this.gameState.command(CommandType.Move, { to });
+        const figureCoordinate = this.app.getActionCoordinate(this.context);
+        if (figureCoordinate) {
+            return this.gameState.command(CommandType.PickFigure, { figureCoordinate });
         }
     }
 }
