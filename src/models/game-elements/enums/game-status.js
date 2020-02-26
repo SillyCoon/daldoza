@@ -1,1 +1,1 @@
-export const GameStatus = Object.freeze({"Playing": 0, "FirstWin": 1, "SecondWin": 2});
+export const GameStatus = Object.freeze({"Playing": 0, "ExtraMove": 1, "FirstWin": 2, "SecondWin": 3});

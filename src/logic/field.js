@@ -23,16 +23,27 @@ export class Field {
 
   _init() {
     this.squares = [];
+    this.figures = [];
     for (let i = 0; i < this.colsLength; i++) {
       this.squares.push([]);
       const rowLength = (i === 1) ? this.middleRowLength : this.sideRowLength;
       for (let j = 0; j < rowLength; j++) {
+
+        const figure = makeFigure(i, j);
+
+        this.figures.push(figure);
         this.squares[i].push(
           new Square(
             { x: i, y: j },
-            i !== 1 ? new Figure(i === 0 ? 1 : 2) : null)
+            figure)
         );
       }
+    }
+
+    function makeFigure(x, y) {
+      const figure = x !== 1 ? new Figure(x === 0 ? 1 : 2) : null;
+      if (figure) figure.coordinate = { x, y };
+      return figure;
     }
   }
 

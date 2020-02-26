@@ -68,28 +68,38 @@ export class GameState {
     }
 
     command(type, params) {
+        let nextState;
         switch (type) {
             case CommandType.Move:
-                return this.makeMove(this.selectedFigure.coordinate, params.to);
+                nextState = this.makeMove(this.selectedFigure.coordinate, params.to);
+                break;
             case CommandType.Activate:
-                return this.activate(params.figureCoordinate);
+                nextState = this.activate(params.figureCoordinate);
+                break;
             case CommandType.PickFigure:
-                return this.pickFigure(params.figureCoordinate);
+                nextState = this.pickFigure(params.figureCoordinate);
+                break;
             case CommandType.Roll:
-                return this.roll();
+                nextState = this.roll();
+                break;
             default:
                 throw new Error('No such command!');
         }
+        return nextState;
     }
 
 
     roll() {
-        const rolledDices = [Dice.roll(), Dice.roll()];
-        return new GameState(this.field, {
-            color: this.currentPlayerColor,
-            dices: rolledDices,
-            selectedFigure: null
-        }, this.status);
+        if (!this._hasDices()) {
+            const rolledDices = [Dice.roll(), Dice.roll()];
+            return new GameState(this.field, {
+                color: this.currentPlayerColor,
+                dices: rolledDices,
+                selectedFigure: null
+            }, this.status);
+        } else {
+            return this;
+        }
     }
 
     activate(figureCoordinate) {
@@ -140,8 +150,7 @@ export class GameState {
                 color: nextPlayerColor,
                 dices: remainingDices,
                 selectedFigure: null
-            },
-                status);
+            }, status);
         }
 
         return this;
@@ -163,6 +172,10 @@ export class GameState {
     }
 
     _hasDal() {
-        return this.dices.some(dice => dice === 1);
+        return this.dices.some(dice => dice === Dice.dal);
+    }
+
+    _hasDices() {
+        return !!this.dices.length;
     }
 }

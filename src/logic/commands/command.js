@@ -8,7 +8,7 @@ export class Command {
 
     execute() {
         const nextState = this._runCommand();
-        if (!nextState) {
+        if (!nextState || nextState.equals(this.gameState)) {
             return null;
         }
         this.app.currentState = nextState;

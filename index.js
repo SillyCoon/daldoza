@@ -43,10 +43,20 @@ export class App {
         btnRoll.addEventListener('click', () => this.rollDices().then(() => enableUndoButton(true)));
         btnUndo.addEventListener('click', () => this.undo().then(() => enableUndoButton(false)));
 
+        this.canvas.addEventListener('mouseup', event => {
+            if (event.button === 0) {
+                this.pickFigure(event);
+            } else if (event.button === 2) {
+                this.move(event);
+            }
+            if (this.commands.length) {
+                enableUndoButton(true);
+            }
+        });
+
         this.canvas.addEventListener('dblclick', event => this.activate(event).then(() => enableUndoButton(true)));
-        this.canvas.addEventListener('click', (event) => this.pickFigure(event).then(() => enableUndoButton(true)));
+
         this.canvas.addEventListener('contextmenu', event => {
-            this.move(event).then(() => enableUndoButton(true));
             event.preventDefault();
         });
 
@@ -82,7 +92,7 @@ export class App {
             if (!this.commands.length) resolve();
         })
     }
-    
+
     executeCommand(command) {
         if (command.execute()) {
             this.commands.push(command);
