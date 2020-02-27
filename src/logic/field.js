@@ -1,7 +1,7 @@
 import { Square } from '../models/game-elements/square.js';
-import { Figure } from '../models/game-elements/figure.js';
 import { NotationConverter } from './notation-converter.js';
 import { FieldException } from '../models/game-elements/exceptions/field-exception.js';
+import { FieldSnapshot } from '../models/game-elements/field-snapshot.js';
 
 export class Field {
 
@@ -11,40 +11,14 @@ export class Field {
 
   constructor(snapshot) {
 
-    this.sideRowLength = 16;
+    this.sideRowLength = snapshot.size;
     this.colsLength = 3;
-    this._init();
-    this.restore(snapshot);
+    this.restore(snapshot.value);
   }
 
   static initial(size = 16) {
-    return new Field(NotationConverter.initialNotation(size));
-  }
-
-  _init() {
-    this.squares = [];
-    this.figures = [];
-    for (let i = 0; i < this.colsLength; i++) {
-      this.squares.push([]);
-      const rowLength = (i === 1) ? this.middleRowLength : this.sideRowLength;
-      for (let j = 0; j < rowLength; j++) {
-
-        const figure = makeFigure(i, j);
-
-        this.figures.push(figure);
-        this.squares[i].push(
-          new Square(
-            { x: i, y: j },
-            figure)
-        );
-      }
-    }
-
-    function makeFigure(x, y) {
-      const figure = x !== 1 ? new Figure(x === 0 ? 1 : 2) : null;
-      if (figure) figure.coordinate = { x, y };
-      return figure;
-    }
+    const snapshot = new FieldSnapshot(NotationConverter.initialNotation(size));
+    return new Field(snapshot);
   }
 
   activate(figureCoordinate, currentColor) {
@@ -189,20 +163,36 @@ export class Field {
   }
 
   makeSnapshot() {
-    return NotationConverter.toNotation(this);
+    const snapshot = new FieldSnapshot(NotationConverter.toNotation(this));
+    return snapshot;
   }
 
   restore(snapshot) {
-    const cols = snapshot.split('\n');
-    cols.forEach((col, i) => {
-      let j = 0;
-      for (let c of col) {
-        const figure = NotationConverter.charToFigure(c);
-        const currentSquare = this.findSquare({ x: i, y: j });
-        currentSquare.figure = figure;
-        j++;
+    this.squares = [];
+    this.figures = [];
+    const fieldColumns = snapshot.split('\n');
+
+    for (let x = 0; x < this.colsLength; x++) {
+      this.squares.push([]);
+      const rowLength = (x === 1) ? this.middleRowLength : this.sideRowLength;
+      for (let y = 0; y < rowLength; y++) {
+
+        const figure = makeFigure(fieldColumns[x][y], { x, y });
+
+        this.figures.push(figure);
+        this.squares[x].push(
+          new Square(
+            { x, y },
+            figure)
+        );
       }
-    });
+    }
+
+    function makeFigure(char, coordinate) {
+      const figure = NotationConverter.charToFigure(char);
+      if (figure) figure.coordinate = coordinate;
+      return figure;
+    }
   }
 
   equals(otherField) {
