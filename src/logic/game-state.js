@@ -85,6 +85,7 @@ export class GameState {
             default:
                 throw new Error('No such command!');
         }
+
         return nextState;
     }
 
@@ -92,11 +93,13 @@ export class GameState {
     roll() {
         if (!this._hasDices()) {
             const rolledDices = [Dice.roll(), Dice.roll()];
-            return new GameState(this.field, {
+            const nextState = new GameState(this.field, {
                 color: this.currentPlayerColor,
                 dices: rolledDices,
                 selectedFigure: null
             }, this.status);
+            nextState.status = nextState._hasDal() || nextState._hasAnyAvailableMove() ? this.status : GameStatus.NoMoves
+            return nextState;
         } else {
             return this;
         }
@@ -177,5 +180,11 @@ export class GameState {
 
     _hasDices() {
         return !!this.dices.length;
+    }
+
+    _hasAnyAvailableMove() {
+        return this.distances.find(distance => {
+            return !!this.field.getAnyFigureOfColorCanMoveOn(distance, this.currentPlayerColor);
+        })
     }
 }

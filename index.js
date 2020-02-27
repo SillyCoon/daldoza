@@ -65,7 +65,6 @@ export class App {
         }
     }
 
-
     rollDices() {
         return this.executeCommand(new RollCommand(this, this.currentState, null));
     }
@@ -81,7 +80,6 @@ export class App {
     move(event) {
         return this.executeCommand(new MoveCommand(this, this.currentState, event));
     }
-
 
     undo() {
         const lastCommand = this.commands.pop();

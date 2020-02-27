@@ -33,7 +33,7 @@ export class Field {
   }
 
   moveFigure(from, to) {
-    const changingField = this.clone();
+    const changingField = this.clone(); // чтобы изменения не затронули старое состояние поля
     const fromSquare = changingField.findSquare(from);
     const toSquare = changingField.findSquare(to);
 
@@ -45,6 +45,8 @@ export class Field {
     // TODO: архитектура от бога просто, чтобы поменять координаты фигур, придется еще раз
     // переводить в нотацию и создавать поле
     // в перспективе можно двигать сразу в нотации или избавиться от понятия поля и оставить только фигуры
+    // или избавиться от поля в данном виде и оставить только нотацию в виде массива символов
+
     // snapshot[to.x][to.y] = snapshot[from.x][from.y]
     // snapshot[from.x][from.y] = '*'
     return changingField.clone();
@@ -58,6 +60,16 @@ export class Field {
 
   findSquare(coordinate) {
     return this.squares[coordinate.x][coordinate.y];
+  }
+
+  getAnyFigureOfColorCanMoveOn(distance, color) {
+    return this.figures.find(figure => {
+      let squareToMove;
+      if (figure.color === color && figure.active) {
+        squareToMove = this.getNotBlockedSquareCoordinateByDistanceFrom(figure.coordinate, distance, color);
+      }
+      return !!squareToMove;
+    });
   }
 
   getNotBlockedSquareCoordinateByDistanceFrom(fromCoordinate, distance, blockingColor) {
