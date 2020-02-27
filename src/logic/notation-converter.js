@@ -1,4 +1,5 @@
 import { Figure } from '../models/game-elements/figure.js';
+import { Notation } from "../models/game-elements/enums/notation.js";
 
 export class NotationConverter {
 
@@ -10,16 +11,16 @@ export class NotationConverter {
       row.forEach(square => {
         if (square.hasFigure) {
           if (square.figure.isFirstPlayer) {
-            notation += square.figure.isActive ? '+' : '-';
+            notation += square.figure.isActive ? Notation.FirstActive : Notation.FirstPassive;
           } else {
-            notation += square.figure.isActive ? '1' : '0';
+            notation += square.figure.isActive ? Notation.SecondActive : Notation.SecondPassive;
           }
         }
         else {
-          notation += '*';
+          notation += Notation.Empty;
         }
       });
-      notation += '\n';
+      notation += Notation.Delimiter;
     });
     return notation;
   }
@@ -30,21 +31,21 @@ export class NotationConverter {
     let color;
 
     switch (c) { // . после квадрата - активный
-      case '*':
+      case Notation.Empty:
         return null;
-      case '+':
+      case Notation.FirstActive:
         isActive = true;
         color = 1;
         break;
-      case '-':
+      case Notation.FirstPassive:
         isActive = false;
         color = 1;
         break;
-      case '1':
+      case Notation.SecondActive:
         isActive = true;
         color = 2;
         break;
-      case '0':
+      case Notation.SecondPassive:
         isActive = false;
         color = 2;
     }
@@ -62,11 +63,11 @@ export class NotationConverter {
     let middleRow = ''; 
 
     for (let i = 0; i < size; i++) {
-      firstPlayerRow += '-';
-      secondPlayerRow += '0';
-      middleRow += '*';
+      firstPlayerRow += Notation.FirstPassive;
+      secondPlayerRow += Notation.SecondPassive;
+      middleRow += Notation.Empty;
     }
-    middleRow += '*'; 
-    return firstPlayerRow + '\n' + middleRow + '\n' + secondPlayerRow; 
+    middleRow += Notation.Empty; 
+    return firstPlayerRow + Notation.Delimiter + middleRow + Notation.Delimiter + secondPlayerRow; 
   } 
 }

@@ -42,7 +42,13 @@ export class Field {
     toSquare.figure = fromSquare.figure;
     fromSquare.figure = null;
 
-    return changingField;
+    // TODO: архитектура от бога просто, чтобы поменять координаты фигур, придется еще раз
+    // переводить в нотацию и создавать поле
+    // в перспективе можно двигать сразу в нотации или избавиться от понятия поля и оставить только фигуры
+    // snapshot[to.x][to.y] = snapshot[from.x][from.y]
+    // snapshot[from.x][from.y] = '*'
+    return changingField.clone();
+
   }
 
   pickFigure(coordinate) {
@@ -178,8 +184,7 @@ export class Field {
       for (let y = 0; y < rowLength; y++) {
 
         const figure = makeFigure(fieldColumns[x][y], { x, y });
-
-        this.figures.push(figure);
+        if (figure) this.figures.push(figure);
         this.squares[x].push(
           new Square(
             { x, y },
