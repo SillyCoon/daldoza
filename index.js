@@ -40,7 +40,7 @@ export class App {
         const btnRoll = document.querySelector('#btn-roll');
         const btnUndo = document.querySelector('#btn-undo');
 
-        btnRoll.addEventListener('click', () => this.rollDices().then(() => enableUndoButton(true)));
+        btnRoll.addEventListener('click', () => this.rollDices());
         btnUndo.addEventListener('click', () => this.undo().then(() => enableUndoButton(false)));
 
         this.canvas.addEventListener('mouseup', event => {
@@ -92,10 +92,11 @@ export class App {
     }
 
     executeCommand(command) {
-        if (command.execute()) {
-            this.commands.push(command);
-        }
-        return Promise.resolve();
+        return command.execute().then(stateHasMove => {
+            if (stateHasMove && !(command instanceof RollCommand)) {
+                this.commands.push(command);
+            }
+        });
     }
 
     getActionCoordinate(event) {
@@ -142,6 +143,10 @@ export class App {
 
     draw(state) {
         this.drawer.draw(state, this.playerStatistics(state))
+    }
+
+    log(message) {
+        this.logger.log(message);
     }
 }
 

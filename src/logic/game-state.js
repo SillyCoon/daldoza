@@ -5,6 +5,13 @@ import { GameStatus } from '../models/game-elements/enums/game-status.js';
 
 export class GameState {
 
+    get hasAnyMove() {
+
+        // TODO: нужно проверять, что это не первый ход чувака,
+        // иначе получается, что даже кубики не кинуть и ход скипается
+        return this._hasAnyAvailableMove() || this._hasDal();
+    }
+
     get snapshot() {
         return ({
             field: this.field,
@@ -41,11 +48,11 @@ export class GameState {
         return result;
     }
 
-    constructor(field, player, status) {
+    constructor(field, { dices, color, selectedFigure }, status) {
         this.field = field;
-        this.dices = player.dices;
-        this.currentPlayerColor = player.color;
-        this.selectedFigure = player.selectedFigure;
+        this.dices = dices;
+        this.currentPlayerColor = color;
+        this.selectedFigure = selectedFigure;
         this.status = status;
     }
 
@@ -98,7 +105,6 @@ export class GameState {
                 dices: rolledDices,
                 selectedFigure: null
             }, this.status);
-            nextState.status = nextState._hasDal() || nextState._hasAnyAvailableMove() ? this.status : GameStatus.NoMoves
             return nextState;
         } else {
             return this;
@@ -157,6 +163,10 @@ export class GameState {
         }
 
         return this;
+    }
+
+    skipMove() {
+        return new GameState(this.field, { dices: [], color: this.oppositePlayerColor, selectedFigure: null }, this.status);
     }
 
     isSquareAvailableToMove(squareCoordinate) {
