@@ -8,6 +8,7 @@ export class Command {
 
     execute() {
         const nextState = this._runCommand();
+        
         if (!nextState || nextState.equals(this.gameState)) {
             return Promise.resolve(false);
         }

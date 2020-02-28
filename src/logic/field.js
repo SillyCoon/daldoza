@@ -104,13 +104,8 @@ export class Field {
 
   onlyOneFigureOfColor(color) {
 
-    let figuresCounter = 0;
-
-    for (let square of this.iterate()) {
-      if (square.figure && square.figure.color === color) figuresCounter++;
-      if (figuresCounter > 1) return false;
-    }
-    return true;
+    const figuresCounter = this.figures.filter(figure => figure.color === color).length;
+    return figuresCounter <= 1;
   }
 
   hasFiguresOnWay(from, to, direction) {

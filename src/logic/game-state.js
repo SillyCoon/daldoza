@@ -5,46 +5,6 @@ import { GameStatus } from '../models/game-elements/enums/game-status.js';
 
 export class GameState {
 
-    get hasAnyMove() {
-
-        return this._hasAnyAvailableMove() || this._hasDal() || !this._hasDices();
-    }
-
-    get snapshot() {
-        return ({
-            field: this.field,
-            dices: this.dices,
-            currentPlayerColor: this.color,
-            selectedFigure: this.selectedFigure,
-            status: this.status
-        });
-    }
-
-    get oppositePlayerColor() {
-        return this.currentPlayerColor === 1 ? 2 : 1;
-    }
-
-    get distances() {
-        return this.dices.length > 1 ? [...this.dices, this.dices[0] + this.dices[1]] : [...this.dices];
-    }
-
-    get possibleMoves() {
-        let result;
-        if (this._selectedFigureReadyToMove()) {
-            result = this.distances.map(distance =>
-                this.field.getNotBlockedSquareCoordinateByDistanceFrom(this.selectedFigure.coordinate, distance, this.currentPlayerColor)
-            );
-        } else {
-            result = [];
-        }
-
-        // Просто балуюсь возможностями js, вообще не думаю, что этот миксин прям хорошая идея
-        result.hasMove = (checkingMove) => {
-            return !!result.filter(move => JSON.stringify(move) === JSON.stringify(checkingMove)).length;
-        };
-
-        return result;
-    }
 
     constructor(field, { dices, color, selectedFigure }, status) {
         this.field = field;
@@ -67,6 +27,52 @@ export class GameState {
         return new GameState(field, playerOptions, status);
 
     }
+
+    get oppositePlayerColor() {
+        return this.currentPlayerColor === 1 ? 2 : 1;
+    }
+
+    get distances() {
+        return this.dices.length > 1 ? [...this.dices, this.dices[0] + this.dices[1]] : [...this.dices];
+    }
+
+    get possibleMovesForSelectedFigure() {
+        let result;
+        if (this._selectedFigureReadyToMove()) {
+            result = this.distances.map(distance =>
+                this.field.getNotBlockedSquareCoordinateByDistanceFrom(this.selectedFigure.coordinate, distance, this.currentPlayerColor)
+            );
+        } else {
+            result = [];
+        }
+
+        // Просто балуюсь возможностями js, вообще не думаю, что этот миксин прям хорошая идея
+        result.hasMove = (checkingMove) => {
+            return !!result.filter(move => JSON.stringify(move) === JSON.stringify(checkingMove)).length;
+        };
+
+        return result;
+    }
+
+    get hasWinCondition() {
+        return this.field.onlyOneFigureOfColor(this.oppositePlayerColor);
+    }
+
+    get hasAnyMove() {
+        return this._hasAnyAvailableMove() || this._hasDal() || !this._hasDices();
+    }
+
+    get snapshot() {
+        return ({
+            field: this.field,
+            dices: this.dices,
+            currentPlayerColor: this.color,
+            selectedFigure: this.selectedFigure,
+            status: this.status
+        });
+    }
+
+
 
     equals(otherState) {
         return JSON.stringify(this.snapshot) === JSON.stringify(otherState.snapshot);
@@ -168,7 +174,7 @@ export class GameState {
     }
 
     isSquareAvailableToMove(squareCoordinate) {
-        return this.possibleMoves.hasMove(squareCoordinate);
+        return this.possibleMovesForSelectedFigure.hasMove(squareCoordinate);
     }
 
     _selectedFigureReadyToMove() {

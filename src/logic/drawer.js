@@ -41,13 +41,24 @@ export class CanvasDrawer {
         })
     }
 
+    drawVictory(state, playerStatistic) {
+        this.clear();
+        this._setFillColor(state.currentPlayerColor === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor);
+        playerStatistic.win = true;
+        this._drawCurrentPlayerStatistics(playerStatistic);
+    }
+
     clear() {
         this._context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     _drawCurrentPlayerStatistics(player) {
         if (player) {
-            this._context.fillText(`Игрок: ${player.name}`, this._nextSquareCoordinate(7), this._nextSquareCoordinate(0));
+            let text = `Игрок: ${player.name}`;
+            if (player.win) {
+                text += `победил`;
+            }
+            this._context.fillText(text, this._nextSquareCoordinate(7), this._nextSquareCoordinate(0));
         }
     }
 
