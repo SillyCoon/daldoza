@@ -7,9 +7,7 @@ export class GameState {
 
     get hasAnyMove() {
 
-        // TODO: нужно проверять, что это не первый ход чувака,
-        // иначе получается, что даже кубики не кинуть и ход скипается
-        return this._hasAnyAvailableMove() || this._hasDal();
+        return this._hasAnyAvailableMove() || this._hasDal() || !this._hasDices();
     }
 
     get snapshot() {
