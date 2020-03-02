@@ -56,7 +56,7 @@ export class CanvasDrawer {
         if (player) {
             let text = `Игрок: ${player.name}`;
             if (player.win) {
-                text += `победил`;
+                text += ` победил`;
             }
             this._context.fillText(text, this._nextSquareCoordinate(7), this._nextSquareCoordinate(0));
         }

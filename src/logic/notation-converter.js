@@ -51,23 +51,44 @@ export class NotationConverter {
     }
 
     const figure = new Figure(color);
-    if(isActive) figure.activate();
-    
+    if (isActive) figure.activate();
+
     return figure;
   }
 
   static initialNotation(size = 16) {
-    
+
     let firstPlayerRow = '';
     let secondPlayerRow = '';
-    let middleRow = ''; 
+    let middleRow = '';
 
     for (let i = 0; i < size; i++) {
       firstPlayerRow += Notation.FirstPassive;
       secondPlayerRow += Notation.SecondPassive;
       middleRow += Notation.Empty;
     }
-    middleRow += Notation.Empty; 
-    return firstPlayerRow + Notation.Delimiter + middleRow + Notation.Delimiter + secondPlayerRow; 
-  } 
+    middleRow += Notation.Empty;
+    return firstPlayerRow + Notation.Delimiter + middleRow + Notation.Delimiter + secondPlayerRow;
+  }
+
+  static goodTest(size = 13) {
+    let firstPlayerRow = '';
+    let secondPlayerRow = '';
+    let middleRow = '';
+
+    for (let i = 0; i < size; i++) {
+      if (i === 0 || i === 5) { firstPlayerRow += Notation.FirstPassive }
+      else {
+        firstPlayerRow += Notation.Empty;
+      }
+
+      if (i === 0 || i === 5) { secondPlayerRow += Notation.SecondPassive }
+      else {
+        secondPlayerRow += Notation.Empty;
+      }
+      middleRow += Notation.Empty;
+    }
+    middleRow += Notation.Empty;
+    return firstPlayerRow + Notation.Delimiter + middleRow + Notation.Delimiter + secondPlayerRow;
+  }
 }

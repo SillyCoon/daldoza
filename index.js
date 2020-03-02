@@ -95,9 +95,9 @@ export class App {
         return command.execute().then(stateHasMove => {
             if (stateHasMove && !(command instanceof RollCommand)) {
                 this.commands.push(command);
-                if (this.currentState.hasWinCondition) {
-                    this.showVictoryScreen()
-                }
+            }
+            if (this.currentState.hasWinCondition) {
+                this.showVictoryScreen();
             }
         });
     }
