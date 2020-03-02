@@ -78,7 +78,11 @@ export class App {
     }
 
     move(event) {
-        return this.executeCommand(new MoveCommand(this, this.currentState, event)); // TODO: проверять условие победы только после хода
+        return this.executeCommand(new MoveCommand(this, this.currentState, event)).then(() => {
+            if (this.currentState.hasWinCondition) {
+                this.showVictoryScreen();
+            }
+        });
     }
 
     undo() {
@@ -95,9 +99,6 @@ export class App {
         return command.execute().then(stateHasMove => {
             if (stateHasMove && !(command instanceof RollCommand)) {
                 this.commands.push(command);
-            }
-            if (this.currentState.hasWinCondition) {
-                this.showVictoryScreen();
             }
         });
     }
