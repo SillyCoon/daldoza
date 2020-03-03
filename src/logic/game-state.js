@@ -103,7 +103,14 @@ export class GameState {
 
     roll() {
         if (!this._hasDices()) {
+
             const rolledDices = [Dice.roll(), Dice.roll()];
+
+            // хотел с apply, но по сути static метод сделает то же самое
+            if (Dice.hasDoubleDal(...rolledDices)) {
+                rolledDices.push(Dice.roll(), Dice.roll());
+            }
+            
             const nextState = new GameState(this.field, {
                 color: this.currentPlayerColor,
                 dices: rolledDices,

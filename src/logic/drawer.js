@@ -65,7 +65,7 @@ export class CanvasDrawer {
     _drawDices(dices) {
         if (dices && dices.length) {
             dices.forEach((dice, i) => {
-                this._drawDice(9 + i, 2, dice);
+                this._drawDice(8 + i, 2, dice);
             });
         }
     }
@@ -84,7 +84,8 @@ export class CanvasDrawer {
     _drawDice(x, y, value) {
         this._drawSquare(x, y);
         const valueDrawer = new DiceDrawerFactory(value);
-        valueDrawer.makeDrawFunction()(this._context, this._centerOfSquare(x), this._centerOfSquare(y));
+        const drawDice = valueDrawer.makeDrawFunction();
+        drawDice(this._context, this._centerOfSquare(x), this._centerOfSquare(y));
     }
 
     _drawFigure(figure, x, y) {
