@@ -8,16 +8,18 @@ import { RollCommand } from './src/logic/commands/roll-command.js';
 import { ActivateCommand } from './src/logic/commands/activate-command.js';
 import { PickCommand } from './src/logic/commands/pick-command.js';
 import { MoveCommand } from './src/logic/commands/move-command.js';
+import { LayoutHelper } from './src/logic/layout-helper.js';
 
 export class App {
 
-    constructor() {
-        this.firstPlayerName = "Дал";
-        this.secondPlayerName = "Доз";
+    constructor(container, { firstPlayerName = "Дал", secondPlayerName = "Доз" }) {
 
-        this.canvas = document.getElementById('canvas');
+        this.firstPlayerName = firstPlayerName;
+        this.secondPlayerName = secondPlayerName;
 
-        this._initControls();
+        this.canvas = makeFieldLayout(container);
+        const controlsDiv = makeControlsLayout(container);
+        this._initControls(controlsDiv, this.canvas);
 
         this.commands = [];
 
@@ -28,22 +30,56 @@ export class App {
         this.drawer = this.initDrawer();
         this.logger = this.initLogger();
 
-        this.states = [];
 
-        this.currentState = GameState.start(16);
-        this.draw(this.currentState);
+        function makeFieldLayout(container) {
 
+            const fieldContainer = document.createElement('div');
+            fieldContainer.id = "dal-field";
+
+            const canvas = document.createElement('canvas')
+            canvas.id = "dal-canvas";
+
+            fieldContainer.prepend(canvas);
+            container.prepend(fieldContainer);
+            return canvas;
+        }
+
+        function makeControlsLayout(container) {
+            const controlsContainer = document.createElement('div');
+            controlsContainer.className = 'dal-controls-container';
+
+            const controls = document.createElement('div');
+            controls.className = 'dal-controls';
+
+            const logContainer = document.createElement('div');
+            logContainer.id = 'dal-log-pane';
+            const logHeader = document.createElement('h3');
+            logHeader.textContent = 'Лог:';
+            logContainer.appendChild(logHeader);
+
+            controlsContainer.prepend(controls);
+            controlsContainer.append(logContainer);
+            container.appendChild(controlsContainer);
+            return controls;
+        }
     }
 
-    _initControls() {
+    start() {
+        this.currentState = GameState.start(this.fieldSize);
+        this.draw(this.currentState);
+    }
 
-        const btnRoll = document.querySelector('#btn-roll');
-        const btnUndo = document.querySelector('#btn-undo');
+    _initControls(controlsContainer, canvas) {
+
+        const btnRoll = LayoutHelper.makeControlButton({ name: 'Roll' });
+        const btnUndo = LayoutHelper.makeControlButton({ name: 'Undo', disabled: true });
+
+        controlsContainer.append(btnRoll, btnUndo);
 
         btnRoll.addEventListener('click', () => this.rollDices());
         btnUndo.addEventListener('click', () => this.undo().then(() => enableUndoButton(false)));
 
-        this.canvas.addEventListener('mouseup', event => {
+        canvas.addEventListener('mouseup', event => {
             if (event.button === 0) {
                 this.pickFigure(event);
             } else if (event.button === 2) {
@@ -54,15 +90,16 @@ export class App {
             }
         });
 
-        this.canvas.addEventListener('dblclick', event => this.activate(event).then(() => enableUndoButton(true)));
+        canvas.addEventListener('dblclick', event => this.activate(event).then(() => enableUndoButton(true)));
 
-        this.canvas.addEventListener('contextmenu', event => {
+        canvas.addEventListener('contextmenu', event => {
             event.preventDefault();
         });
 
         function enableUndoButton(flag) {
             btnUndo.disabled = !flag;
         }
+
     }
 
     rollDices() {
@@ -128,7 +165,7 @@ export class App {
     }
 
     initLogger() {
-        const logPane = document.querySelector('#log-pane');
+        const logPane = document.querySelector('#dal-log-pane');
         const logger = new Logger(logPane);
         return logger;
     }
@@ -158,6 +195,9 @@ export class App {
     }
 }
 
-const app = new App();
+(function initGame() {
 
-// Application();
+    const gameContainer = document.querySelector(".game-container");
+    const app = new App(gameContainer, { firstPlayerName: "Дал", secondPlayerName: "Доз" });
+    app.start();
+})()
