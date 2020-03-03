@@ -1,14 +1,15 @@
-import { GameState } from './src/logic/game-state.js';
-import { CanvasDrawer } from './src/logic/drawer.js';
-import { Logger } from './src/logic/logger.js';
-import { ColorScheme } from './src/models/draw/color-scheme.js';
-import { Size } from './src/models/draw/size.js';
-import { CoordinateTranslator } from './src/logic/coordinate-translator.js';
-import { RollCommand } from './src/logic/commands/roll-command.js';
-import { ActivateCommand } from './src/logic/commands/activate-command.js';
-import { PickCommand } from './src/logic/commands/pick-command.js';
-import { MoveCommand } from './src/logic/commands/move-command.js';
-import { LayoutHelper } from './src/logic/layout-helper.js';
+import { GameState } from './logic/game-state.js';
+import { CanvasDrawer } from './logic/drawer.js';
+import { Logger } from './logic/logger.js';
+import { ColorScheme } from './models/draw/color-scheme.js';
+import { Size } from './models/draw/size.js';
+import { CoordinateTranslator } from './logic/coordinate-translator.js';
+import { RollCommand } from './logic/commands/roll-command.js';
+import { ActivateCommand } from './logic/commands/activate-command.js';
+import { PickCommand } from './logic/commands/pick-command.js';
+import { MoveCommand } from './logic/commands/move-command.js';
+import { LayoutHelper } from './logic/layout-helper.js';
+import css from './styles/style.css';
 
 export class App {
 

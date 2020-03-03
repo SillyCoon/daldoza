@@ -1,5 +1,5 @@
 import { Command } from "./command.js";
-import { CommandType } from '/src/models/game-elements/enums/command-type.js';
+import { CommandType } from '../../models/game-elements/enums/command-type.js';
 
 export class PickCommand extends Command {
     constructor(app, gameState, context) {
