@@ -1,19 +1,14 @@
 export class Dice {
     
-
-    constructor(sides = 4) {
-        this.sides = sides;
+    static roll() {
+        return (Math.floor(Math.random() * Math.floor(4)) + 1);
     }
 
-    roll() {
-        return this._generateRandom(this.sides);
-    }
-
-    _generateRandom(max) {
-        return Math.floor(Math.random() * Math.floor(max)) + 1;
-    }
-
-    static get dos() {
+    static get dal() {
         return 1;
+    }
+
+    static hasDoubleDal(...dices) {
+        return !dices.some(dice => dice !== this.dal);
     }
 }

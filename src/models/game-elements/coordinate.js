@@ -1,6 +1,4 @@
 export class Coordinate  {
-    x;
-    y;
 
     constructor(stringWithDelimiter) {
         const [x, y] = stringWithDelimiter.replace(' ', '').split(';');

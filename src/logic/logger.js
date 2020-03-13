@@ -1,7 +1,5 @@
 export class Logger {
 
-    _logPane;
-
     constructor(logPane) {
         this._logPane = logPane;
     }

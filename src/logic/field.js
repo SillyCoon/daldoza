@@ -1,42 +1,83 @@
 import { Square } from '../models/game-elements/square.js';
-import { Figure } from '../models/game-elements/figure.js';
-import { Coordinate } from '../models/game-elements/coordinate.js';
 import { NotationConverter } from './notation-converter.js';
+import { FieldException } from '../models/game-elements/exceptions/field-exception.js';
+import { FieldSnapshot } from '../models/game-elements/field-snapshot.js';
 
 export class Field {
-
-  squares = [];
-
-  sideRowLength;
-
-  colsLength;
 
   get middleRowLength() {
     return this.sideRowLength + 1;
   }
 
-  constructor(size = 16) {
-    this.sideRowLength = size;
+  constructor(snapshot) {
+
+    this.sideRowLength = snapshot.size;
     this.colsLength = 3;
-    this._init();
+    this.restore(snapshot.value);
   }
 
-  _init() {
-    for (let i = 0; i < this.colsLength; i++) {
-      this.squares.push([]);
-      const rowLength = (i === 1) ? this.middleRowLength : this.sideRowLength;
-      for (let j = 0; j < rowLength; j++) {
-        this.squares[i].push(
-          new Square(
-            { x: i, y: j },
-            i !== 1 ? new Figure(i === 0 ? 1 : 2) : null)
-        );
-      }
+  static initial(size = 16) {
+    const snapshot = new FieldSnapshot(NotationConverter.initialNotation(size));
+    return new Field(snapshot);
+  }
+
+  activate(figureCoordinate, currentColor) {
+    const changingField = this.clone();
+    const selectedFigure = changingField.findSquare(figureCoordinate).figure;
+
+    if (selectedFigure && !selectedFigure.active && selectedFigure.color === currentColor) {
+      selectedFigure.activate();
+      return changingField;
     }
+    return this;
+  }
+
+  moveFigure(from, to) {
+    const changingField = this.clone(); // чтобы изменения не затронули старое состояние поля
+    const fromSquare = changingField.findSquare(from);
+    const toSquare = changingField.findSquare(to);
+
+    if (!fromSquare || !toSquare) throw new FieldException('Неправильный ход!');
+
+    toSquare.figure = fromSquare.figure;
+    fromSquare.figure = null;
+
+    // TODO: архитектура от бога просто, чтобы поменять координаты фигур, придется еще раз
+    // переводить в нотацию и создавать поле
+    // в перспективе можно двигать сразу в нотации или избавиться от понятия поля и оставить только фигуры
+    // или избавиться от поля в данном виде и оставить только нотацию в виде массива символов
+
+    // snapshot[to.x][to.y] = snapshot[from.x][from.y]
+    // snapshot[from.x][from.y] = '*'
+    return changingField.clone();
+
+  }
+
+  pickFigure(coordinate) {
+    const figure = this.findSquare(coordinate).figure;
+    return figure;
   }
 
   findSquare(coordinate) {
     return this.squares[coordinate.x][coordinate.y];
+  }
+
+  getAnyFigureOfColorCanMoveOn(distance, color) {
+    return this.figures.find(figure => {
+      let squareToMove;
+      if (figure.color === color && figure.active) {
+        squareToMove = this.getNotBlockedSquareCoordinateByDistanceFrom(figure.coordinate, distance, color);
+      }
+      return !!squareToMove;
+    });
+  }
+
+  getNotBlockedSquareCoordinateByDistanceFrom(fromCoordinate, distance, blockingColor) {
+    const squareOnDistance = this.getSquareByDistanceFromCurrent(fromCoordinate, distance, blockingColor);
+    if (this.hasFiguresOnWay(fromCoordinate, squareOnDistance.coordinate, blockingColor)) {
+      return null;
+    }
+    return squareOnDistance.coordinate;
   }
 
   distance(from, to) {
@@ -54,13 +95,6 @@ export class Field {
     }
   }
 
-  setHighlighting(highlightingSquaresCoordinates, highlighted) {
-    highlightingSquaresCoordinates.forEach(coordinates => {
-      const square = this.findSquare(coordinates);
-      square.highlighted = highlighted;
-    });
-  }
-
   getSquareByDistanceFromCurrent(currentSquareCoordinates, distance, direction) {
 
     for (let nextSquare of this.iterateFromToExcludeFirst(direction, currentSquareCoordinates, currentSquareCoordinates)) {
@@ -69,19 +103,14 @@ export class Field {
   }
 
   onlyOneFigureOfColor(color) {
-    
-    let figuresCounter = 0;
 
-    for (let square of this.iterate()) {
-      if (square.figure.color === color) figuresCounter++;
-      if (figuresCounter > 1) return false;
-    }
-    return true;
+    const figuresCounter = this.figures.filter(figure => figure.color === color).length;
+    return figuresCounter <= 1;
   }
 
   hasFiguresOnWay(from, to, direction) {
     for (let square of this.iterateFromToExcludeFirst(direction, from, to)) {
-      if (square.hasFigure && square.figure.color === direction) return true
+      if (square.hasFigure && square.figure.color === direction) return true;
     }
     return false;
   }
@@ -90,14 +119,14 @@ export class Field {
     return this._anyFigureSuitsCondition(
       color,
       (clr, figure) => figure && figure.active && figure.color === clr
-    )
+    );
   }
 
   anyNotActiveFigure(color) {
     return this._anyFigureSuitsCondition(
       color,
       (clr, figure) => figure && !figure.active && figure.color === clr
-    )
+    );
   }
 
   _anyFigureSuitsCondition(color, condition) {
@@ -111,7 +140,7 @@ export class Field {
     const from = direction === 1 ? { x: 0, y: 0 } : { x: 2, y: 0 };
     const to = direction === 1 ? { x: 2, y: 0 } : { x: 0, y: 0 };
 
-    yield* this.iterateFromTo(direction, from, to)
+    yield* this.iterateFromTo(direction, from, to);
   }
 
   *iterateFromTo(direction, from, to, condition = () => true) {
@@ -138,7 +167,7 @@ export class Field {
           y++;
         }
       }
-    } while (x !== to.x || y !== to.y)
+    } while (x !== to.x || y !== to.y);
     yield this.squares[to.x][to.y]; // last square
   }
 
@@ -147,20 +176,43 @@ export class Field {
   }
 
   makeSnapshot() {
-    return NotationConverter.toNotation(this);
+    const snapshot = new FieldSnapshot(NotationConverter.toNotation(this));
+    return snapshot;
   }
 
   restore(snapshot) {
-    const cols = snapshot.split('\n');
-    cols.forEach((col, i) => {
-      let j = 0;
-      for (let c of col) {
-        const figure = NotationConverter.charToFigure(c);
-        const currentSquare = this.findSquare({ x: i, y: j });
-        currentSquare.figure = figure;
-        j++;
+    this.squares = [];
+    this.figures = [];
+    const fieldColumns = snapshot.split('\n');
+
+    for (let x = 0; x < this.colsLength; x++) {
+      this.squares.push([]);
+      const rowLength = (x === 1) ? this.middleRowLength : this.sideRowLength;
+      for (let y = 0; y < rowLength; y++) {
+
+        const figure = makeFigure(fieldColumns[x][y], { x, y });
+        if (figure) this.figures.push(figure);
+        this.squares[x].push(
+          new Square(
+            { x, y },
+            figure)
+        );
       }
-    });
+    }
+
+    function makeFigure(char, coordinate) {
+      const figure = NotationConverter.charToFigure(char);
+      if (figure) figure.coordinate = coordinate;
+      return figure;
+    }
+  }
+
+  equals(otherField) {
+    this.makeSnapshot() === otherField.makeSnapshot();
+  }
+
+  clone() {
+    return new Field(this.makeSnapshot());
   }
 
 }

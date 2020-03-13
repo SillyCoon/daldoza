@@ -21,17 +21,17 @@ export class CanvasDrawer {
         }
     }
 
-    draw(field, dices, player) {
+    draw(state, playerStatistic) {
         this.clear();
-
-        this._setFillColor(player.color === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor);
-        this._drawDices(dices);
-        this._drawCurrentPlayerStatistics(player);
-        field.squares.forEach((row, x) => {
+        this._setFillColor(state.currentPlayerColor === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor);
+        this._drawDices(state.dices);
+        this._drawCurrentPlayerStatistics(playerStatistic);
+        state.field.squares.forEach((row, x) => {
             this._drawXNumeration(x);
             row.forEach((square, y) => {
                 this._context.beginPath();
-                this._drawSquare(x, y, square.highlighted);
+                const highlighted = state.isSquareAvailableToMove(square.coordinate);
+                this._drawSquare(x, y, highlighted);
                 this._drawYNumeration(y);
                 if (square.figure) {
                     this._drawFigure(square.figure, x, y);
@@ -41,20 +41,31 @@ export class CanvasDrawer {
         })
     }
 
+    drawVictory(state, playerStatistic) {
+        this.clear();
+        this._setFillColor(state.currentPlayerColor === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor);
+        playerStatistic.win = true;
+        this._drawCurrentPlayerStatistics(playerStatistic);
+    }
+
     clear() {
         this._context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     _drawCurrentPlayerStatistics(player) {
         if (player) {
-            this._context.fillText(`Игрок: ${player.name}`, this._nextSquareCoordinate(7), this._nextSquareCoordinate(0));
+            let text = `Игрок: ${player.name}`;
+            if (player.win) {
+                text += ` победил`;
+            }
+            this._context.fillText(text, this._nextSquareCoordinate(7), this._nextSquareCoordinate(0));
         }
     }
 
     _drawDices(dices) {
         if (dices && dices.length) {
             dices.forEach((dice, i) => {
-                this._drawDice(9 + i, 2, dice);
+                this._drawDice(8 + i, 2, dice);
             });
         }
     }
@@ -73,7 +84,8 @@ export class CanvasDrawer {
     _drawDice(x, y, value) {
         this._drawSquare(x, y);
         const valueDrawer = new DiceDrawerFactory(value);
-        valueDrawer.makeDrawFunction()(this._context, this._centerOfSquare(x), this._centerOfSquare(y));
+        const drawDice = valueDrawer.makeDrawFunction();
+        drawDice(this._context, this._centerOfSquare(x), this._centerOfSquare(y));
     }
 
     _drawFigure(figure, x, y) {
