@@ -1,1 +1,3 @@
-export const GameStatus = Object.freeze({"Playing": 0, "ExtraMove": 1, "FirstWin": 2, "SecondWin": 3, "NoMoves": 4});
+import { EnumGenerator } from "../../../logic/enum-generator";
+
+export const GameStatus = EnumGenerator.generate("Playing", "ExtraMove", "FirstWin", "SecondWin", "NoMoves");

@@ -9,18 +9,27 @@ import { ActivateCommand } from './logic/commands/activate-command.js';
 import { PickCommand } from './logic/commands/pick-command.js';
 import { MoveCommand } from './logic/commands/move-command.js';
 import { LayoutHelper } from './logic/layout-helper.js';
+import { GameMode } from './models/game-elements/enums/game-mode.js';
+
+// eslint-disable-next-line no-unused-vars
 import css from './styles/style.css';
+
 
 export class App {
 
-    constructor(container, { firstPlayerName = "kek", secondPlayerName = "Доз" }) {
+    constructor(container, { firstPlayerName = "Дал", secondPlayerName = "Доз" }, { mode = GameMode.Single }) {
+
+        this.mode = mode;
 
         this.firstPlayerName = firstPlayerName;
         this.secondPlayerName = secondPlayerName;
 
         this.canvas = makeFieldLayout(container);
         const controlsDiv = makeControlsLayout(container);
+        const loggerDiv = makeLoggerLayout(controlsDiv.parentElement);
+
         this._initControls(controlsDiv, this.canvas);
+        this.logger = this._initLogger(loggerDiv);
 
         this.commands = [];
 
@@ -29,8 +38,6 @@ export class App {
         this.fieldSize = 16;
 
         this.drawer = this.initDrawer();
-        this.logger = this.initLogger();
-
 
         function makeFieldLayout(container) {
 
@@ -41,7 +48,8 @@ export class App {
             canvas.id = "dal-canvas";
 
             fieldContainer.prepend(canvas);
-            container.prepend(fieldContainer);
+            container.prepend(fieldContainer)
+
             return canvas;
         }
 
@@ -52,16 +60,20 @@ export class App {
             const controls = document.createElement('div');
             controls.className = 'dal-controls';
 
+            controlsContainer.prepend(controls);
+            container.appendChild(controlsContainer);
+            return controls;
+        }
+
+        function makeLoggerLayout(container) {
             const logContainer = document.createElement('div');
             logContainer.id = 'dal-log-pane';
             const logHeader = document.createElement('h3');
             logHeader.textContent = 'Лог:';
             logContainer.appendChild(logHeader);
+            container.appendChild(logContainer);
 
-            controlsContainer.prepend(controls);
-            controlsContainer.append(logContainer);
-            container.appendChild(controlsContainer);
-            return controls;
+            return logContainer;
         }
     }
 
@@ -135,9 +147,16 @@ export class App {
 
     executeCommand(command) {
         return command.execute().then(stateHasMove => {
-            if (stateHasMove && !(command instanceof RollCommand)) {
-                this.commands.push(command);
+            if (stateHasMove) {
+                if (this.mode === GameMode.AI && this.currentState.currentPlayerColor === 2) {
+                    // AICommand = AI.generateCommand(this.currentState);
+                    // this.executeAICommand(AICommand); - также как и обычная, но с задержкой, чтобы видеть что произошло (или добавить всем анимацию)
+                }
+                if (!(command instanceof RollCommand) && !(command instanceof PickCommand)) {
+                    this.commands.push(command);
+                }
             }
+
         });
     }
 
@@ -165,8 +184,7 @@ export class App {
         return new CanvasDrawer(this.canvas, this.colorScheme, this.size);
     }
 
-    initLogger() {
-        const logPane = document.querySelector('#dal-log-pane');
+    _initLogger(logPane) {
         const logger = new Logger(logPane);
         return logger;
     }
@@ -201,6 +219,6 @@ export class App {
     const gameContainer = document.createElement('div');
     gameContainer.className = 'game-container';
     document.body.appendChild(gameContainer);
-    const app = new App(gameContainer, { firstPlayerName: "Дал", secondPlayerName: "Доз" });
+    const app = new App(gameContainer, { firstPlayerName: "Дал", secondPlayerName: "Доз" }, { mode: GameMode.Single });
     app.start();
 })()
