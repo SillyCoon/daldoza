@@ -13,7 +13,7 @@ import css from './styles/style.css';
 
 export class App {
 
-    constructor(container, { firstPlayerName = "Дал", secondPlayerName = "Доз" }) {
+    constructor(container, { firstPlayerName = "kek", secondPlayerName = "Доз" }) {
 
         this.firstPlayerName = firstPlayerName;
         this.secondPlayerName = secondPlayerName;
@@ -198,7 +198,9 @@ export class App {
 
 (function initGame() {
 
-    const gameContainer = document.querySelector(".game-container");
+    const gameContainer = document.createElement('div');
+    gameContainer.className = 'game-container';
+    document.body.appendChild(gameContainer);
     const app = new App(gameContainer, { firstPlayerName: "Дал", secondPlayerName: "Доз" });
     app.start();
 })()

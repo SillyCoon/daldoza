@@ -1,10 +1,24 @@
+// eslint-disable-next-line no-undef
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+// eslint-disable-next-line no-undef
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+
 /* eslint-disable no-undef */
 const path = require('path');
 
 module.exports = {
-  entry: './src/index.js',
+  mode: 'development',
+  entry: [
+    './src/index.js',
+  ],
+  devtool: 'inline-source-map',
+  devServer: {
+    contentBase: './dist',
+    hot: true
+  },
   output: {
-    filename: 'main.js',
+    filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
   },
   module: {
@@ -14,5 +28,11 @@ module.exports = {
         use: ['style-loader', 'css-loader'],
       }
     ]
-  }
+  },
+  plugins: [
+    new CleanWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      title: 'Дальдоза',
+    }),
+  ],
 };
