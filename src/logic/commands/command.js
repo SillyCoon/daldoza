@@ -1,9 +1,9 @@
 export class Command {
 
-    constructor(app, gameState, context) {
+    constructor(app, gameState, actionCoordinate) {
         this.app = app;
         this.gameState = gameState;
-        this.context = context;
+        this.actionCoordinate = actionCoordinate;
     }
 
     execute() {

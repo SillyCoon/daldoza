@@ -42,7 +42,7 @@ export class App {
         this.size = new Size();
         this.fieldSize = 16;
 
-        this.drawer = this.initDrawer();
+        this.drawer = this._initDrawer();
 
         function makeFieldLayout(container) {
 
@@ -99,16 +99,16 @@ export class App {
 
         canvas.addEventListener('mouseup', event => {
             if (event.button === 0) {
-                this.pickFigure(event);
+                this.pickFigure(this.getActionCoordinate(event));
             } else if (event.button === 2) {
-                this.move(event);
+                this.move(this.getActionCoordinate(event));
             }
             if (this.commands.length) {
                 enableUndoButton(true);
             }
         });
 
-        canvas.addEventListener('dblclick', event => this.activate(event).then(() => enableUndoButton(true)));
+        canvas.addEventListener('dblclick', event => this.activate(this.getActionCoordinate(event)).then(() => enableUndoButton(true)));
 
         canvas.addEventListener('contextmenu', event => {
             event.preventDefault();
@@ -124,16 +124,16 @@ export class App {
         return this.executeCommand(new RollCommand(this, this.currentState, null));
     }
 
-    pickFigure(event) {
-        return this.executeCommand(new PickCommand(this, this.currentState, event));
+    pickFigure(figureCoordinate) {
+        return this.executeCommand(new PickCommand(this, this.currentState, figureCoordinate));
     }
 
-    activate(event) {
-        return this.executeCommand(new ActivateCommand(this, this.currentState, event));
+    activate(figureCoordinate) {
+        return this.executeCommand(new ActivateCommand(this, this.currentState, figureCoordinate));
     }
 
-    move(event) {
-        return this.executeCommand(new MoveCommand(this, this.currentState, event)).then(() => {
+    move(to) {
+        return this.executeCommand(new MoveCommand(this, this.currentState, to)).then(() => {
             if (this.currentState.hasWinCondition) {
                 this.showVictoryScreen();
             }
@@ -164,15 +164,6 @@ export class App {
         });
     }
 
-    executeAICommand(command) {
-        return command.execute().then(() => {
-            if (this.mode === GameMode.AI && this.currentState.currentPlayerColor === 2) {
-                const AICommand = this.AI.generateCommand(this.currentState, this);
-                this.executeCommand(AICommand);
-            }
-        })
-    }
-
     getActionCoordinate(event) {
         const mousePosition = this.getMousePosition(event);
         const translatedCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
@@ -191,7 +182,7 @@ export class App {
     }
 
     // Фабрику бы, фабрику (или нет)
-    initDrawer() {
+    _initDrawer() {
         this.canvas.height = this.size.height;
         this.canvas.width = this.size.width;
         return new CanvasDrawer(this.canvas, this.colorScheme, this.size);
