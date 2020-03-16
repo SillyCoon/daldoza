@@ -98,10 +98,11 @@ export class App {
         btnUndo.addEventListener('click', () => this.undo().then(() => enableUndoButton(false)));
 
         canvas.addEventListener('mouseup', event => {
+            const actionCoordinate = this.getActionCoordinate(event);
             if (event.button === 0) {
-                this.pickFigure(this.getActionCoordinate(event));
+                this.pickFigure(actionCoordinate);
             } else if (event.button === 2) {
-                this.move(this.getActionCoordinate(event));
+                this.move(actionCoordinate);
             }
             if (this.commands.length) {
                 enableUndoButton(true);
@@ -133,7 +134,7 @@ export class App {
     }
 
     move(to) {
-        return this.executeCommand(new MoveCommand(this, this.currentState, to)).then(() => {
+        return this.executeCommand(new MoveCommand(this, this.currentState, { to })).then(() => {
             if (this.currentState.hasWinCondition) {
                 this.showVictoryScreen();
             }

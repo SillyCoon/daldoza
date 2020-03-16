@@ -82,6 +82,9 @@ export class GameState {
         let nextState;
         switch (type) {
             case CommandType.Move:
+                if (params.from) {
+                    this.selectedFigure = this.field.pickFigure(params.from);
+                }
                 nextState = this.makeMove(this.selectedFigure.coordinate, params.to);
                 break;
             case CommandType.Activate:
@@ -194,6 +197,18 @@ export class GameState {
                     .map(figure => ({ type: CommandType.Activate, actionCoordinate: figure.coordinate }));
             commands.push(...activateCommands);
         }
+
+        this.distances.forEach(distance => {
+            const movesForDistance = this.field
+                .getAllFiguresOfColorCanMoveOn(distance, this.currentPlayerColor)
+                .map(figure => {
+                    const to = this.field.getSquareByDistanceFromCurrent(figure.coordinate, distance, this.currentPlayerColor).coordinate;
+                    const from = figure.coordinate;
+                    return { type: CommandType.Move, from, to };
+                });
+            commands.push(...movesForDistance);
+        });
+
         return commands;
     }
 

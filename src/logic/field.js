@@ -63,7 +63,11 @@ export class Field {
   }
 
   getAnyFigureOfColorCanMoveOn(distance, color) {
-    return this.figures.find(figure => {
+    return this.getAllFiguresOfColorCanMoveOn(distance, color).pop();
+  }
+
+  getAllFiguresOfColorCanMoveOn(distance, color) {
+    return this.figures.filter(figure => {
       let squareToMove;
       if (figure.color === color && figure.active) {
         squareToMove = this.getNotBlockedSquareCoordinateByDistanceFrom(figure.coordinate, distance, color);

@@ -1,6 +1,7 @@
 import { RollCommand } from "./commands/roll-command";
 import { CommandType } from "../models/game-elements/enums/command-type";
 import { ActivateCommand } from "./commands/activate-command";
+import { MoveCommand } from "./commands/move-command";
 
 export class PrimitiveAI {
 
@@ -15,6 +16,8 @@ export class PrimitiveAI {
                 return new RollCommand(app, app.currentState);
             case CommandType.Activate:
                 return new ActivateCommand(app, app.currentState, command.actionCoordinate);
+            case CommandType.Move:
+                return new MoveCommand(app, app.currentState, { from: command.from, to: command.to });
             default:
                 throw new Error('Such command is not supported!');
         }
