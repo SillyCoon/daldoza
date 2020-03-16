@@ -115,6 +115,10 @@ export class Field {
     return false;
   }
 
+  getAllFiguresCanActivate(color) {
+    return this.figures.filter(figure => figure.color === color && !figure.active);
+  }
+
   anyActiveFigure(color) {
     return this._anyFigureSuitsCondition(
       color,
@@ -135,6 +139,8 @@ export class Field {
     }
     return false;
   }
+
+
 
   *iterate(direction = 1) {
     const from = direction === 1 ? { x: 0, y: 0 } : { x: 2, y: 0 };

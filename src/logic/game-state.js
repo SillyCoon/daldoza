@@ -188,6 +188,11 @@ export class GameState {
         const commands = [];
         if (!this._hasDices()) {
             commands.push({ type: CommandType.Roll });
+        } else if (this._hasDal()) {
+            const activateCommands =
+                this.field.getAllFiguresCanActivate(this.currentPlayerColor)
+                    .map(figure => ({ type: CommandType.Activate, actionCoordinate: figure.coordinate }));
+            commands.push(...activateCommands);
         }
         return commands;
     }
