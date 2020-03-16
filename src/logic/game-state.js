@@ -110,7 +110,7 @@ export class GameState {
             if (Dice.hasDoubleDal(...rolledDices)) {
                 rolledDices.push(Dice.roll(), Dice.roll());
             }
-            
+
             const nextState = new GameState(this.field, {
                 color: this.currentPlayerColor,
                 dices: rolledDices,
@@ -182,6 +182,14 @@ export class GameState {
 
     isSquareAvailableToMove(squareCoordinate) {
         return this.possibleMovesForSelectedFigure.hasMove(squareCoordinate);
+    }
+
+    getAllAvailableCommands() {
+        const commands = [];
+        if (!this._hasDices()) {
+            commands.push({ type: CommandType.Roll });
+        }
+        return commands;
     }
 
     _selectedFigureReadyToMove() {

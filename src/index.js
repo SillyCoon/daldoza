@@ -10,6 +10,7 @@ import { PickCommand } from './logic/commands/pick-command.js';
 import { MoveCommand } from './logic/commands/move-command.js';
 import { LayoutHelper } from './logic/layout-helper.js';
 import { GameMode } from './models/game-elements/enums/game-mode.js';
+import { PrimitiveAI } from './logic/primitive-AI';
 
 // eslint-disable-next-line no-unused-vars
 import css from './styles/style.css';
@@ -20,6 +21,10 @@ export class App {
     constructor(container, { firstPlayerName = "Дал", secondPlayerName = "Доз" }, { mode = GameMode.Single }) {
 
         this.mode = mode;
+
+        if (mode === GameMode.AI) {
+            this.AI = new PrimitiveAI(); // по идее еще задизейблить ходы для 2 игрока со стороны реального игрока
+        }
 
         this.firstPlayerName = firstPlayerName;
         this.secondPlayerName = secondPlayerName;
@@ -148,16 +153,24 @@ export class App {
     executeCommand(command) {
         return command.execute().then(stateHasMove => {
             if (stateHasMove) {
-                if (this.mode === GameMode.AI && this.currentState.currentPlayerColor === 2) {
-                    // AICommand = AI.generateCommand(this.currentState);
-                    // this.executeAICommand(AICommand); - также как и обычная, но с задержкой, чтобы видеть что произошло (или добавить всем анимацию)
-                }
                 if (!(command instanceof RollCommand) && !(command instanceof PickCommand)) {
                     this.commands.push(command);
                 }
             }
-
+            if (this.mode === GameMode.AI && this.currentState.currentPlayerColor === 2) {
+                const AICommand = this.AI.generateCommand(this);
+                setTimeout(() => this.executeCommand(AICommand), 1000); // Пока так
+            }
         });
+    }
+
+    executeAICommand(command) {
+        return command.execute().then(() => {
+            if (this.mode === GameMode.AI && this.currentState.currentPlayerColor === 2) {
+                const AICommand = this.AI.generateCommand(this.currentState, this);
+                this.executeCommand(AICommand);
+            }
+        })
     }
 
     getActionCoordinate(event) {
@@ -219,6 +232,6 @@ export class App {
     const gameContainer = document.createElement('div');
     gameContainer.className = 'game-container';
     document.body.appendChild(gameContainer);
-    const app = new App(gameContainer, { firstPlayerName: "Дал", secondPlayerName: "Доз" }, { mode: GameMode.Single });
+    const app = new App(gameContainer, { firstPlayerName: "Дал", secondPlayerName: "Доз" }, { mode: GameMode.AI });
     app.start();
 })()
