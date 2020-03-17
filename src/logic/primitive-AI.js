@@ -30,15 +30,15 @@ export class PrimitiveAI {
 
     _notSuchRandomCommand(gameState) {
         const commands = gameState.getAllAvailableCommands();
-        const activatingFigure = getActivationCommandWithLeastCoordinate();
+        const activatingFigure = getActivationCommandWithSmallestCoordinate();
 
         if (activatingFigure) return activatingFigure;
         return this._shuffle(commands)[0];
 
-        function getActivationCommandWithLeastCoordinate() {
+        function getActivationCommandWithSmallestCoordinate() {
             return commands
                 .filter(command => command.type === CommandType.Activate)
-                .sort((a, b) => b.actionCoordinate.y - a.actionCoordinate.y)[0]
+                .sort((a, b) => a.actionCoordinate.y - b.actionCoordinate.y)[0];
         }
     }
 
