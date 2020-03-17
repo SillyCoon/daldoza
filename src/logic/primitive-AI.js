@@ -10,7 +10,7 @@ export class PrimitiveAI {
     }
 
     generateCommand(app) {
-        const command = this._randomCommand(app.currentState);
+        const command = this._notSuchRandomCommand(app.currentState);
         switch (command.type) {
             case CommandType.Roll:
                 return new RollCommand(app, app.currentState);
@@ -26,6 +26,20 @@ export class PrimitiveAI {
     _randomCommand(gameState) {
         const commands = gameState.getAllAvailableCommands();
         return this._shuffle(commands)[0];
+    }
+
+    _notSuchRandomCommand(gameState) {
+        const commands = gameState.getAllAvailableCommands();
+        const activatingFigure = getActivationCommandWithLeastCoordinate();
+
+        if (activatingFigure) return activatingFigure;
+        return this._shuffle(commands)[0];
+
+        function getActivationCommandWithLeastCoordinate() {
+            return commands
+                .filter(command => command.type === CommandType.Activate)
+                .sort((a, b) => b.actionCoordinate.y - a.actionCoordinate.y)[0]
+        }
     }
 
     _shuffle(array) {
