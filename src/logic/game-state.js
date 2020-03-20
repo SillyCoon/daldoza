@@ -128,6 +128,7 @@ export class GameState {
     activate(figureCoordinate) {
         if (this._hasDal()) {
             const changedField = this.field.activate(figureCoordinate, this.currentPlayerColor);
+            if (changedField === this.field) return this;
             const remainingDices = this._removeUsedDices(Dice.dal);
             const nextPlayerColor = remainingDices.length ? this.currentPlayerColor : this.oppositePlayerColor;
             const status = this.status;

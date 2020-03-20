@@ -17,4 +17,8 @@ export class Figure {
     get isFirstPlayer() {
         return this.color === 1; 
     }
+
+    canActivatedBy(player) {
+        return !this.active && this.color === player
+    }
 }

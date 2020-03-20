@@ -23,13 +23,17 @@ export class Field {
 
   activate(figureCoordinate, currentColor) {
     const changingField = this.clone();
-    const selectedFigure = changingField.findSquare(figureCoordinate).figure;
+    const activatingFigure = changingField.findFigureByCoordinate(figureCoordinate);
 
-    if (selectedFigure && !selectedFigure.active && selectedFigure.color === currentColor) {
-      selectedFigure.activate();
+    if (activatingFigure && activatingFigure.canActivatedBy(currentColor)) {
+      activatingFigure.activate();
       return changingField;
     }
     return this;
+  }
+
+  findFigureByCoordinate(coordinate) {
+    return this.figures.find(figure => figure.coordinate.x === coordinate.x  && figure.coordinate.y === coordinate.y);
   }
 
   moveFigure(from, to) {
