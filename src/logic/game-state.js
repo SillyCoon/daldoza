@@ -189,26 +189,45 @@ export class GameState {
     }
 
     getAllAvailableCommands() {
-        const commands = [];
-        if (!this._hasDices()) {
-            commands.push({ type: CommandType.Roll });
-        } else if (this._hasDal()) {
-            const activateCommands =
-                this.field.getAllFiguresCanActivate(this.currentPlayerColor)
-                    .map(figure => ({ type: CommandType.Activate, actionCoordinate: figure.coordinate }));
-            commands.push(...activateCommands);
+
+        const availableMoveCommands = () => {
+            const commands = [];
+            this.distances.forEach(distance => {
+                const movesForDistance = this.field
+                    .getAllFiguresOfColorCanMoveOn(distance, this.currentPlayerColor)
+                    .map(figure => {
+                        const to = this.field.getSquareByDistanceFromCurrent(figure.coordinate, distance, this.currentPlayerColor).coordinate;
+                        const from = figure.coordinate;
+                        const hasFigureToEat = this.field.pickFigure(to);
+                        return { type: CommandType.Move, from, to, hasFigureToEat };
+                    });
+                commands.push(...movesForDistance);
+            });
+            return commands;
         }
 
-        this.distances.forEach(distance => {
-            const movesForDistance = this.field
-                .getAllFiguresOfColorCanMoveOn(distance, this.currentPlayerColor)
-                .map(figure => {
-                    const to = this.field.getSquareByDistanceFromCurrent(figure.coordinate, distance, this.currentPlayerColor).coordinate;
-                    const from = figure.coordinate;
-                    return { type: CommandType.Move, from, to };
-                });
-            commands.push(...movesForDistance);
-        });
+        const availableRollCommands = () => {
+            if (!this._hasDices()) {
+                return { type: CommandType.Roll };
+            } else {
+                return null;
+            }
+        }
+
+        const availableActivateCommands = () => {
+            if (this._hasDal()) {
+                return this.field.getAllFiguresCanActivate(this.currentPlayerColor)
+                    .map(figure => ({ type: CommandType.Activate, actionCoordinate: figure.coordinate }));
+            }
+            return [];
+        }
+
+        const rollCommand = availableRollCommands();
+        if (rollCommand) return [rollCommand];
+
+        const commands = [];
+        commands.push(...availableActivateCommands());
+        commands.push(...availableMoveCommands());
 
         return commands;
     }

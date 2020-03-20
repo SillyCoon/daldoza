@@ -23,17 +23,13 @@ export class Field {
 
   activate(figureCoordinate, currentColor) {
     const changingField = this.clone();
-    const activatingFigure = changingField.findFigureByCoordinate(figureCoordinate);
+    const activatingFigure = changingField.pickFigure(figureCoordinate);
 
     if (activatingFigure && activatingFigure.canActivatedBy(currentColor)) {
       activatingFigure.activate();
       return changingField;
     }
     return this;
-  }
-
-  findFigureByCoordinate(coordinate) {
-    return this.figures.find(figure => figure.coordinate.x === coordinate.x  && figure.coordinate.y === coordinate.y);
   }
 
   moveFigure(from, to) {
@@ -58,7 +54,7 @@ export class Field {
   }
 
   pickFigure(coordinate) {
-    const figure = this.findSquare(coordinate).figure;
+    const figure = this.figures.find(figure => figure.coordinate.x === coordinate.x  && figure.coordinate.y === coordinate.y);
     return figure;
   }
 
