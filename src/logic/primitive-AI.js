@@ -31,7 +31,7 @@ const commandsHelper = {
     getMoveAfterWhichCanEat(currentState) {
         const moveCommands = this._filterCommandsOfType(CommandType.Move);
         return moveCommands.filter(move => {
-            const stateAfterMove = currentState.move(move.from, move.to);
+            const stateAfterMove = currentState.makeMove(move.from, move.to);
             if (stateAfterMove.hasAnyAvailableMove()) {
                 return true;
             }
