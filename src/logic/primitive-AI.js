@@ -14,11 +14,25 @@ const commandsHelper = {
     getFirstRandom() {
         return this._shuffle()[0];
     },
+    getCommandAfterWhichCanEat(currentState) {
+        const activation = this.getActivationAfterWhichCanEat(currentState);
+        if (activation) return activation;
+        return this.getMoveAfterWhichCanEat(currentState);
+    },
     getActivationAfterWhichCanEat(currentState) {
         const activationCommands = this._filterCommandsOfType(CommandType.Activate);
         return activationCommands.filter(activation => {
             const stateAfterActivation = currentState.activate(activation.actionCoordinate);
             if (stateAfterActivation.hasAnyAvailableMove()) {
+                return true;
+            }
+        })[0];
+    },
+    getMoveAfterWhichCanEat(currentState) {
+        const moveCommands = this._filterCommandsOfType(CommandType.Move);
+        return moveCommands.filter(move => {
+            const stateAfterMove = currentState.move(move.from, move.to);
+            if (stateAfterMove.hasAnyAvailableMove()) {
                 return true;
             }
         })[0];
@@ -66,10 +80,10 @@ export class PrimitiveAI {
         const commandsHelper = this._connectHelper(commands);
 
         const eat = commandsHelper.getMoveCommandWithEating();
-        const activateAndThenEat = commandsHelper.getActivationAfterWhichCanEat(gameState);
+        const commandThenEat = commandsHelper.getCommandAfterWhichCanEat(gameState);
         const activateFigureWithSmallestCoordinate = commandsHelper.getActivationCommandWithSmallestCoordinate();
         
-        const firstDefinedCommand = this._firstDefined(eat, activateAndThenEat, activateFigureWithSmallestCoordinate);
+        const firstDefinedCommand = this._firstDefined(eat, commandThenEat, activateFigureWithSmallestCoordinate);
 
         if (firstDefinedCommand) {
             return firstDefinedCommand
