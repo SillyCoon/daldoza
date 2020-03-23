@@ -11,6 +11,7 @@ import { MoveCommand } from './logic/commands/move-command.js';
 import { LayoutHelper } from './logic/layout-helper.js';
 import { GameMode } from './models/game-elements/enums/game-mode.js';
 import { PrimitiveAI } from './logic/primitive-AI';
+import { HttpLogger } from './logic/http-logger';
 
 // eslint-disable-next-line no-unused-vars
 import css from './styles/style.css';
@@ -18,7 +19,11 @@ import css from './styles/style.css';
 
 export class App {
 
-    constructor(container, { firstPlayerName = "Дал", secondPlayerName = "Доз" }, { mode = GameMode.Single }) {
+    constructor(container, { firstPlayerName = "Дал", secondPlayerName = "Доз" }, { mode = GameMode.Single}, logger) {
+
+        if (logger) {
+            this.logger = logger;
+        }
 
         this.mode = mode;
 
@@ -224,6 +229,25 @@ export class App {
     const gameContainer = document.createElement('div');
     gameContainer.className = 'game-container';
     document.body.appendChild(gameContainer);
-    const app = new App(gameContainer, { firstPlayerName: "Дал", secondPlayerName: "Доз" }, { mode: GameMode.AI });
-    app.start();
+
+    fetch('http://localhost:3000/health').then(
+        () => {
+            console.log('Logger health: OK');
+            const logger = new HttpLogger('http://localhost:3000/log', {
+                activate: 'activate',
+                roll: 'roll',
+                move: 'move'
+            });
+            const app = new App(gameContainer, { firstPlayerName: "Дал", secondPlayerName: "Доз" }, { mode: GameMode.AI }, logger)
+            app.start();
+        },
+        (onRejected) => {
+            console.error(onRejected);
+            const app = new App(gameContainer, { firstPlayerName: "Дал", secondPlayerName: "Доз" }, { mode: GameMode.AI });
+            app.start();
+        }
+    )
+
+    // const app = new App(gameContainer, { firstPlayerName: "Дал", secondPlayerName: "Доз" }, { mode: GameMode.AI });
+    // app.start();
 })()
