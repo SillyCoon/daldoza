@@ -66,11 +66,11 @@ export class PrimitiveAI {
         const commandsHelper = this._connectHelper(commands);
 
         const eat = commandsHelper.getMoveCommandWithEating();
-        const activationAfterWhichCanEat = commandsHelper.getActivationAfterWhichCanEat(gameState);
-        const activatingFigure = commandsHelper.getActivationCommandWithSmallestCoordinate();
+        const activateAndThenEat = commandsHelper.getActivationAfterWhichCanEat(gameState);
+        const activateFigureWithSmallestCoordinate = commandsHelper.getActivationCommandWithSmallestCoordinate();
         
-        const firstDefinedCommand = this._firstDefined(eat, activationAfterWhichCanEat, activatingFigure);
-        
+        const firstDefinedCommand = this._firstDefined(eat, activateAndThenEat, activateFigureWithSmallestCoordinate);
+
         if (firstDefinedCommand) {
             return firstDefinedCommand
         } else {
