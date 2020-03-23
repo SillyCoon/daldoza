@@ -5,11 +5,23 @@ import { MoveCommand } from "./commands/move-command";
 
 // еще прикольно можно сделать commandsHelper.bind(commands), только придется поменять this.commands на this
 const commandsHelper = {
-    _getActivationCommandWithSmallestCoordinate() {
+    getActivationCommandWithSmallestCoordinate() {
         return this._filterCommandsOfType(CommandType.Activate).sort((a, b) => a.actionCoordinate.y - b.actionCoordinate.y)[0];
     },
-    _getMoveCommandWithEating() {
+    getMoveCommandWithEating() {
         return this._filterCommandsOfType(CommandType.Move).filter(move => move.hasFigureToEat)[0];
+    },
+    getFirstRandom() {
+        return this._shuffle()[0];
+    },
+    getActivationAfterWhichCanEat(currentState) {
+        const activationCommands = this._filterCommandsOfType(CommandType.Activate);
+        return activationCommands.filter(activation => {
+            const stateAfterActivation = currentState.activate(activation.actionCoordinate);
+            if (stateAfterActivation.hasAnyAvailableMove()) {
+                return true;
+            }
+        })[0];
     },
     _filterCommandsOfType(type) {
         return this.commands.filter(command => command.type === type);
@@ -53,23 +65,27 @@ export class PrimitiveAI {
         const commands = gameState.getAllAvailableCommands();
         const commandsHelper = this._connectHelper(commands);
 
-        const eat = commandsHelper._getMoveCommandWithEating();
-        if (eat) {
-            return eat;
+        const eat = commandsHelper.getMoveCommandWithEating();
+        const activationAfterWhichCanEat = commandsHelper.getActivationAfterWhichCanEat(gameState);
+        const activatingFigure = commandsHelper.getActivationCommandWithSmallestCoordinate();
+        
+        const firstDefinedCommand = this._firstDefined(eat, activationAfterWhichCanEat, activatingFigure);
+        
+        if (firstDefinedCommand) {
+            return firstDefinedCommand
+        } else {
+            return commandsHelper.getFirstRandom();
         }
-
-        const activatingFigure = commandsHelper._getActivationCommandWithSmallestCoordinate();
-        if (activatingFigure) {
-            return activatingFigure;
-        }
-
-        return commandsHelper._shuffle()[0];
     }
 
     _connectHelper(commands) {
         const logic = { commands };
         Object.setPrototypeOf(logic, commandsHelper);
         return logic;
+    }
+
+    _firstDefined(...elems) {
+        return elems.find(elem => elem);
     }
 
     _shuffle(array) {

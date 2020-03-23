@@ -59,7 +59,7 @@ export class GameState {
     }
 
     get hasAnyMove() {
-        return this._hasAnyAvailableMove() || this._hasDal() || !this._hasDices();
+        return this.hasAnyAvailableMove() || this._hasDal() || !this._hasDices();
     }
 
     get snapshot() {
@@ -251,7 +251,7 @@ export class GameState {
         return !!this.dices.length;
     }
 
-    _hasAnyAvailableMove() {
+    hasAnyAvailableMove() {
         return this.distances.find(distance => {
             return !!this.field.getAnyFigureOfColorCanMoveOn(distance, this.currentPlayerColor);
         })
