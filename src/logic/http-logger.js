@@ -1,7 +1,26 @@
+import { RollCommand } from "./commands/roll-command";
+import { MoveCommand } from "./commands/move-command";
+import { ActivateCommand } from "./commands/activate-command";
+import { LogRecord } from "../models/game-elements/log/log-record";
+
 export class HttpLogger {
     constructor(baseUrl, endpoints) {
-        this.url = baseUrl;
+        this.baseUrl = baseUrl;
         this.endpoints = endpoints;
+    }
+
+    logCommand(command) {
+        if (command instanceof RollCommand) {
+            const rollLogRecord = new LogRecord(command.gameState.currentPlayerColor, 'Roll', { dices: command.gameState.dices });
+            this.logRoll(rollLogRecord)
+        } else if (command instanceof MoveCommand) {
+            const from = command.from ? command.from : command.gameState.selectedFigure.coordinate;
+            const moveLogRecord = new LogRecord(command.gameState.currentPlayerColor, 'Roll', { from, to: command.to });
+            this.logMove(moveLogRecord);
+        } else if (command instanceof ActivateCommand) {
+            const activateRollRecord = new LogRecord(command.gameState.currentPlayerColor, 'Roll', { actionCoordinate: command.actionCoordinate });
+            this.logActivate(activateRollRecord);
+        }
     }
 
     logActivate(activation) {
