@@ -16,6 +16,10 @@ export class Command {
         this.app.currentState = nextState;
         this.app.draw(nextState);
 
+        if (this.app.httpLogger) {
+            this.app.httpLogger.logCommand(this);
+        }
+
         return new Promise((resolve) => {
             if (nextState.hasAnyMove) {
                 resolve(true);

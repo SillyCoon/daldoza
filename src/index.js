@@ -15,12 +15,11 @@ import { HttpLogger } from './logic/http-logger';
 
 // eslint-disable-next-line no-unused-vars
 import css from './styles/style.css';
-import { LogRecord } from './models/game-elements/log/log-record.js';
 
 
 export class App {
 
-    constructor(container, { firstPlayerName = "Дал", secondPlayerName = "Доз" }, { mode = GameMode.Single}, logger) {
+    constructor(container, { firstPlayerName = "Дал", secondPlayerName = "Доз" }, { mode = GameMode.Single }, logger) {
 
         if (logger) {
             this.httpLogger = logger;
@@ -163,9 +162,6 @@ export class App {
                 if (!(command instanceof RollCommand) && !(command instanceof PickCommand)) {
                     this.commands.push(command);
                 }
-                if (this.httpLogger) {
-                    this.httpLogger.logCommand(command);
-                }
             }
             if (this.mode === GameMode.AI && this.currentState.currentPlayerColor === 2) {
                 const AICommand = this.AI.generateCommand(this);
@@ -251,7 +247,4 @@ export class App {
             app.start();
         }
     )
-
-    // const app = new App(gameContainer, { firstPlayerName: "Дал", secondPlayerName: "Доз" }, { mode: GameMode.AI });
-    // app.start();
 })()
