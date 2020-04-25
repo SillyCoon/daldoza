@@ -15,10 +15,10 @@ export class HttpLogger {
       this.logRoll(rollLogRecord);
     } else if (command instanceof MoveCommand) {
       const from = command.from ? command.from : command.gameState.selectedFigure.coordinate;
-      const moveLogRecord = new LogRecord(command.gameState.currentPlayerColor, 'Roll', { from, to: command.actionCoordinate });
+      const moveLogRecord = new LogRecord(command.gameState.currentPlayerColor, 'Move', { from, to: command.actionCoordinate });
       this.logMove(moveLogRecord);
     } else if (command instanceof ActivateCommand) {
-      const activateRollRecord = new LogRecord(command.gameState.currentPlayerColor, 'Roll', { actionCoordinate: command.actionCoordinate });
+      const activateRollRecord = new LogRecord(command.gameState.currentPlayerColor, 'Activate', { actionCoordinate: command.actionCoordinate });
       this.logActivate(activateRollRecord);
     }
   }
