@@ -18,6 +18,7 @@ module.exports = {
     'require-jsdoc': 0,
     'object-curly-spacing': ['error', 'always'],
     'indent': ['error', 2],
+    'comma-dangle': 'off',
     'linebreak-style': 'off',
     'max-len': ["error", {"code": 120}]
   },

@@ -17,7 +17,11 @@ import css from './styles/style.css';
         roll: 'roll',
         move: 'move',
       });
-      const app = new App(gameContainer, { firstPlayerName: 'Дал', secondPlayerName: 'Доз' }, { mode: GameMode.AI }, logger);
+      const app = new App(
+        gameContainer,
+        { firstPlayerName: 'Дал', secondPlayerName: 'Доз' },
+        { mode: GameMode.AI }, logger
+      );
       app.start();
     },
     (onRejected) => {
