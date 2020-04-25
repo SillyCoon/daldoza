@@ -1,6 +1,10 @@
+import { RollCommand } from './commands/roll-command';
+import { MoveCommand } from './commands/move-command';
+import { ActivateCommand } from './commands/activate-command';
+
 export class SocketMultiplayer {
   constructor(url = 'ws://localhost:8080/ws') {
-    this.socket = new WebSocket();
+    this.socket = new WebSocket(url);
   }
 
   send(command) {
@@ -12,7 +16,7 @@ export class SocketMultiplayer {
     } else if (command instanceof ActivateCommand) {
       message = this.makeMove(command);
     }
-    this.socket.send(message);
+    this.socket.send(JSON.stringify(message));
   }
 
   receive() {

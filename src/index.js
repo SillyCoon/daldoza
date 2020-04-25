@@ -29,7 +29,7 @@ const url = 'ws://localhost:8080/ws';
     },
     (onRejected) => {
       console.error(onRejected);
-      const app = new App(gameContainer, { firstPlayerName: 'Дал', secondPlayerName: 'Доз' }, { mode: GameMode.AI });
+      const app = new App(gameContainer, { firstPlayerName: 'Дал', secondPlayerName: 'Доз' }, { mode: GameMode.Multi });
       app.start();
     },
   );
