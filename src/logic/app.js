@@ -11,6 +11,7 @@ import { MoveCommand } from './commands/move-command.js';
 import { LayoutHelper } from './layout-helper.js';
 import { GameMode } from '../models/game-elements/enums/game-mode.js';
 import { PrimitiveAI } from './primitive-AI';
+import { SocketMultiplayer } from './multiplayer.js';
 
 export class App {
   constructor(container, { firstPlayerName = 'Дал', secondPlayerName = 'Доз' }, { mode = GameMode.Single }, logger) {
@@ -20,8 +21,11 @@ export class App {
 
     this.mode = mode;
 
+    // по идее еще задизейблить ходы для 2 игрока со стороны реального игрока
     if (mode === GameMode.AI) {
-      this.AI = new PrimitiveAI(); // по идее еще задизейблить ходы для 2 игрока со стороны реального игрока
+      this._initAI();
+    } else if (mode === GameMode.Multi) {
+      this._initMultiplayer();
     }
 
     this.firstPlayerName = firstPlayerName;
@@ -114,6 +118,14 @@ export class App {
     function enableUndoButton(flag) {
       btnUndo.disabled = !flag;
     }
+  }
+
+  _initAI() {
+    this.AI = new PrimitiveAI();
+  }
+
+  _initMultiplayer() {
+    this.multiplayer = new SocketMultiplayer();
   }
 
   rollDices() {
