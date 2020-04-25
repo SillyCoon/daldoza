@@ -1,3 +1,3 @@
-import { EnumGenerator } from "../../../logic/enum-generator";
+import { EnumGenerator } from '../../../logic/enum-generator';
 
-export const GameStatus = EnumGenerator.generate("Playing", "ExtraMove", "FirstWin", "SecondWin", "NoMoves");
+export const GameStatus = EnumGenerator.generate('Playing', 'ExtraMove', 'FirstWin', 'SecondWin', 'NoMoves');

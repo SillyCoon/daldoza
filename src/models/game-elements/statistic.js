@@ -1,5 +1,5 @@
 export class Statistic {
-    // firstPlayerFigures = 0;
-    // secondPlayerFigures = 0;
-    
+  // firstPlayerFigures = 0;
+  // secondPlayerFigures = 0;
+
 }

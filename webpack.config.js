@@ -15,7 +15,7 @@ module.exports = {
   devtool: 'inline-source-map',
   devServer: {
     contentBase: './dist',
-    hot: true
+    hot: true,
   },
   output: {
     filename: 'bundle.js',
@@ -26,8 +26,8 @@ module.exports = {
       {
         test: /\.css$/i,
         use: ['style-loader', 'css-loader'],
-      }
-    ]
+      },
+    ],
   },
   plugins: [
     new CleanWebpackPlugin(),

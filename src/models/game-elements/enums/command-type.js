@@ -1,3 +1,3 @@
-import { EnumGenerator } from "../../../logic/enum-generator";
+import { EnumGenerator } from '../../../logic/enum-generator';
 
-export const CommandType = EnumGenerator.generate("Move", "Activate", "Roll", "Save", "PickFigure");
+export const CommandType = EnumGenerator.generate('Move', 'Activate', 'Roll', 'Save', 'PickFigure');
