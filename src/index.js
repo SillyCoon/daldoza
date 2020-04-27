@@ -4,9 +4,6 @@ import { GameMode } from './models/game-elements/enums/game-mode.js';
 
 import css from './styles/style.css';
 
-const url = 'ws://localhost:8080/ws';
-
-
 (function initGame() {
   const gameContainer = document.createElement('div');
   gameContainer.className = 'game-container';

@@ -5,6 +5,7 @@ import { ColorScheme } from '../models/draw/color-scheme.js';
 import { Size } from '../models/draw/size.js';
 import { CoordinateTranslator } from './coordinate-translator.js';
 import { RollCommand } from './commands/roll-command.js';
+import { OppositeRollCommand } from './commands/opposite-roll-command.js';
 import { ActivateCommand } from './commands/activate-command.js';
 import { PickCommand } from './commands/pick-command.js';
 import { MoveCommand } from './commands/move-command.js';
@@ -12,6 +13,7 @@ import { LayoutHelper } from './layout-helper.js';
 import { GameMode } from '../models/game-elements/enums/game-mode.js';
 import { PrimitiveAI } from './primitive-AI';
 import { SocketMultiplayer } from './multiplayer.js';
+import { CommandType } from '../models/game-elements/enums/command-type.js';
 
 export class App {
   constructor(container, { firstPlayerName = 'Дал', secondPlayerName = 'Доз' }, { mode = GameMode.Single }, logger) {
@@ -126,10 +128,28 @@ export class App {
 
   _initMultiplayer() {
     this.multiplayer = new SocketMultiplayer();
+    this.multiplayer.receive().then(action => {
+      switch (action.commandType) {
+      case CommandType.Activate:
+        this.activate(action.actionCoordinate);
+        break;
+      case CommandType.Roll:
+        this.oppositePlayerRollDices(action.dices);
+        break;
+      case CommandType.Move:
+        this.pickFigure(action.from).then(() => {
+          this.move(action.to);
+        });
+      }
+    });
   }
 
   rollDices() {
     return this.executeCommand(new RollCommand(this, this.currentState, null));
+  }
+
+  oppositePlayerRollDices(dices) {
+    return this.executeCommand(new OppositeRollCommand(this, this.currentState, dices));
   }
 
   pickFigure(figureCoordinate) {

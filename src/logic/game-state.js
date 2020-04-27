@@ -89,7 +89,8 @@ export class GameState {
       nextState = this.pickFigure(params.figureCoordinate);
       break;
     case CommandType.Roll:
-      nextState = this.roll();
+      // TODO: серьезно подумать над разделением интерфейсов
+      nextState = this.roll(params ? params.dices : null);
       break;
     default:
       throw new Error('No such command!');
@@ -99,9 +100,9 @@ export class GameState {
   }
 
 
-  roll() {
+  roll(externalDices) {
     if (!this._hasDices()) {
-      const rolledDices = [Dice.roll(), Dice.roll()];
+      const rolledDices = externalDices ? externalDices : [Dice.roll(), Dice.roll()];
 
       // хотел с apply, но по сути static метод сделает то же самое
       if (Dice.hasDoubleDal(...rolledDices)) {

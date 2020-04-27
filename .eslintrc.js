@@ -20,6 +20,7 @@ module.exports = {
     'indent': ['error', 2],
     'comma-dangle': 'off',
     'linebreak-style': 'off',
+    'arrow-parens': 'off',
     'max-len': ["error", {"code": 120}]
   },
 };
