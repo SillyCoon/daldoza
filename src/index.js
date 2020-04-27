@@ -21,12 +21,12 @@ import css from './styles/style.css';
 
     multiplayerBtn.addEventListener('click', (event) => {
       container.removeChild(startContainer);
-      initGame(gameContainer, GameMode.Multi);
+      initGame(container, GameMode.Multi);
     });
 
     aiBtn.addEventListener('click', (event) => {
       container.removeChild(startContainer);
-      initGame(gameContainer, GameMode.AI);
+      initGame(container, GameMode.AI);
     });
   }
 })();
