@@ -33,6 +33,7 @@ module.exports = {
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       title: 'Дальдоза',
+      favicon: 'src/assets/favicon.ico'
     }),
   ],
 };
