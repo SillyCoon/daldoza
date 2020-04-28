@@ -1,4 +1,5 @@
 import { BaseControl } from './base-control';
+import { fromEvent } from 'rxjs';
 
 export class Button extends BaseControl {
   constructor({ name, disabled = false }, className = null, handler = null) {
@@ -13,8 +14,6 @@ export class Button extends BaseControl {
   }
 
   handleClick() {
-    return new Promise((resolve, reject) => {
-      this.nativeElement.addEventListener('click', () => resolve());
-    });
+    return fromEvent(this.nativeElement, 'click');
   }
 }

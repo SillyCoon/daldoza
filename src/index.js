@@ -1,6 +1,7 @@
 import { App } from './logic/app';
 import { HttpLogger } from './logic/http-logger';
 import { GameMode } from './models/game-elements/enums/game-mode.js';
+import { take } from 'rxjs/operators';
 
 // eslint-disable-next-line no-unused-vars
 import css from './styles/style.css';
@@ -26,15 +27,15 @@ import { PrimitiveAI } from './logic/primitive-AI';
     startContainer.appendElement(controlsContainer.nativeElement);
     container.appendElement(startContainer);
 
-    const multiplayerBtn = new Button({ name: 'Multiplayer' }, '')
-    multiplayerBtn.handleClick().then(() => {
+    const multiplayerBtn = new Button({ name: 'Multiplayer' }, '');
+    multiplayerBtn.handleClick().pipe(take(1)).subscribe(() => {
       container.remove(startContainer);
       const otherPlayer = new SocketMultiplayer();
       initGame(container, GameMode.Multi, 'Дал', otherPlayer);
     });
 
     const aiBtn = new Button({ name: 'AI' }, '');
-    aiBtn.handleClick().then(() => {
+    aiBtn.handleClick().pipe(take(1)).subscribe(() => {
       container.remove(startContainer);
       const otherPlayer = new PrimitiveAI();
       initGame(container, GameMode.AI, 'Дал', otherPlayer);

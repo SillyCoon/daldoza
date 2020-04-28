@@ -32,6 +32,10 @@ export class App {
     }
   }
 
+  get gameExists() {
+    return this.currentState && !this.currentState.hasWinCondition;
+  }
+
   constructor(container, myName, { mode = GameMode.Single }, otherPlayer, logger) {
     if (logger) {
       this.httpLogger = logger;
@@ -69,8 +73,12 @@ export class App {
     const btnUndo = new Button({ name: 'Undo' });
     const controlsContainer = makeControlsLayout(container);
 
-    btnRoll.handleClick().then(() => this.rollDices());
-    btnUndo.handleClick().then(() => this.undo());
+    btnRoll.handleClick()
+      .pipe(takeWhile(() => this.gameExists))
+      .subscribe(() => this.rollDices());
+    btnUndo.handleClick()
+      .pipe(takeWhile(() => this.gameExists))
+      .subscribe(() => this.undo());
 
     controlsContainer.append(btnRoll, btnUndo);
 
@@ -92,13 +100,13 @@ export class App {
 
   _assignBoardHandlers() {
     this.board.handleLeftClick()
-      .pipe(takeWhile(() => this.currentState && !this.currentState.hasWinCondition))
+      .pipe(takeWhile(() => this.gameExists))
       .subscribe(actionCoordinate => this.pickFigure(actionCoordinate));
     this.board.handleRightClick()
-      .pipe(takeWhile(() => this.currentState && !this.currentState.hasWinCondition))
+      .pipe(takeWhile(() => this.gameExists))
       .subscribe(actionCoordinate => this.move(actionCoordinate));
     this.board.handleDoubleClick()
-      .pipe(takeWhile(() => this.currentState && !this.currentState.hasWinCondition))
+      .pipe(takeWhile(() => this.gameExists))
       .subscribe(actionCoordinate => this.activate(actionCoordinate));
   }
 
