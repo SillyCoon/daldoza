@@ -1,6 +1,8 @@
 import { Container } from './container';
 import { BaseControl } from './base-control';
 import { CoordinateTranslator } from '../coordinate-translator';
+import { Observable, fromEvent } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export class InteractiveBoard extends BaseControl {
   constructor(size) {
@@ -13,6 +15,7 @@ export class InteractiveBoard extends BaseControl {
 
     super(boardContainer.nativeElement);
 
+    this.fieldSize = size.fieldSize;
     this.canvas = canvas;
     this._disableContextMenu();
   }
@@ -24,35 +27,35 @@ export class InteractiveBoard extends BaseControl {
   }
 
   handleDoubleClick() {
-    return new Promise((resolve, reject) => {
-      this.canvas.addEventListener('dblclick', (event) => {
-        resolve(this.getActionCoordinate(event));
-      });
-    });
+    return fromEvent(this.canvas, 'dblclick').pipe(map(event => this.getActionCoordinate(event)));
   }
 
   handleLeftClick() {
-    return new Promise((resolve, reject) => {
-      this._handleMouseupEvent().then(event => {
-        if (event.button === 2) resolve(this.getActionCoordinate(event));
+    return Observable.create((observer) => {
+      const subscription = this._handleMouseupEvent().subscribe(event => {
+        if (event.button === 0) observer.next(this.getActionCoordinate(event));
       });
+      return () => {
+        console.log('unsubscribed from left click event');
+        subscription.unsubscribe();
+      };
     });
   }
 
   handleRightClick() {
-    return new Promise((resolve, reject) => {
-      this._handleMouseupEvent().then(event => {
-        if (event.button === 0) resolve(this.getActionCoordinate(event));
+    return Observable.create((observer) => {
+      const subscription = this._handleMouseupEvent().subscribe(event => {
+        if (event.button === 2) observer.next(this.getActionCoordinate(event));
       });
+      return () => {
+        console.log('unsubscribed from right click event');
+        subscription.unsubscribe();
+      };
     });
   }
 
   _handleMouseupEvent() {
-    return new Promise((resolve, reject) => {
-      this.canvas.addEventListener('mouseup', (event) => {
-        resolve(event);
-      });
-    });
+    return fromEvent(this.canvas, 'mouseup');
   }
 
   getActionCoordinate(event) {
@@ -74,7 +77,7 @@ export class InteractiveBoard extends BaseControl {
 
   isValidCoordinate({ x, y }) {
     const isValid = (x >= 0 && x < 3) &&
-        (y >= 0 && (y < this.size.fieldSize || (x === 1 && y < this.size.fieldSize + 1)));
+      (y >= 0 && (y < this.fieldSize || (x === 1 && y < this.fieldSize + 1)));
     if (!isValid) console.log('click outside the field');
     return isValid;
   }

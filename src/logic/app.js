@@ -12,6 +12,7 @@ import { Button } from './control/button.js';
 import { InteractiveBoard } from './control/Interactive-board.js';
 import { Container } from './control/container.js';
 import { LogPane } from './control/log-pane.js';
+import { takeWhile } from 'rxjs/operators';
 
 export class App {
   get firstPlayerName() {
@@ -20,6 +21,15 @@ export class App {
 
   get secondPlayerName() {
     return this.myColor === 1 ? this.otherPlayer.name : this.myName;
+  }
+
+  get myColor() {
+    if (!this.otherPlayer) return 1;
+    if (this.otherPlayer.order === 1) {
+      return 2;
+    } else {
+      return 1;
+    }
   }
 
   constructor(container, myName, { mode = GameMode.Single }, otherPlayer, logger) {
@@ -81,9 +91,15 @@ export class App {
   }
 
   _assignBoardHandlers() {
-    this.board.handleLeftClick().then(actionCoordinate => this.pickFigure(actionCoordinate));
-    this.board.handleRightClick().then(actionCoordinate => this.move(actionCoordinate));
-    this.board.handleDoubleClick().then(actionCoordinate => this.activate(actionCoordinate));
+    this.board.handleLeftClick()
+      .pipe(takeWhile(() => this.currentState && !this.currentState.hasWinCondition))
+      .subscribe(actionCoordinate => this.pickFigure(actionCoordinate));
+    this.board.handleRightClick()
+      .pipe(takeWhile(() => this.currentState && !this.currentState.hasWinCondition))
+      .subscribe(actionCoordinate => this.move(actionCoordinate));
+    this.board.handleDoubleClick()
+      .pipe(takeWhile(() => this.currentState && !this.currentState.hasWinCondition))
+      .subscribe(actionCoordinate => this.activate(actionCoordinate));
   }
 
   _toggleControlsAvailability() {
@@ -97,15 +113,6 @@ export class App {
     }
   }
 
-  get myColor() {
-    if (!this.otherPlayer) return 1;
-    if (this.otherPlayer.order === 1) {
-      return 2;
-    } else {
-      return 1;
-    }
-  }
-
   rollDices() {
     return this.executeCommand(new RollCommand(this, this.currentState, null));
   }
@@ -115,6 +122,7 @@ export class App {
   }
 
   pickFigure(figureCoordinate) {
+    console.log('pick');
     return this.executeCommand(new PickCommand(this, this.currentState, figureCoordinate));
   }
 
@@ -147,7 +155,6 @@ export class App {
           this.commands.push(command);
         }
       }
-
       this.handleOtherPlayerCommand(command);
       this._toggleControlsAvailability();
     });
