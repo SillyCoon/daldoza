@@ -53,21 +53,32 @@ const commandsHelper = {
 
 export class PrimitiveAI {
   constructor() {
-
+    this.order = 2;
+    this.name = 'ИИ';
   }
 
-  generateCommand(app) {
+  send(command) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve();
+      }, 2000);
+    });
+  }
+
+  getCommand(app) {
     const command = this._notSuchRandomCommand(app.currentState);
-    switch (command.type) {
-    case CommandType.Roll:
-      return new RollCommand(app, app.currentState);
-    case CommandType.Activate:
-      return new ActivateCommand(app, app.currentState, command.actionCoordinate);
-    case CommandType.Move:
-      return new MoveCommand(app, app.currentState, { from: command.from, to: command.to });
-    default:
-      throw new Error('Such command is not supported!');
-    }
+    return new Promise((resolve, reject) => {
+      switch (command.type) {
+      case CommandType.Roll:
+        resolve(new RollCommand(app, app.currentState));
+      case CommandType.Activate:
+        resolve(new ActivateCommand(app, app.currentState, command.actionCoordinate));
+      case CommandType.Move:
+        resolve(new MoveCommand(app, app.currentState, { from: command.from, to: command.to }));
+      default:
+        throw new Error('AI error!');
+      }
+    });
   }
 
   _randomCommand(gameState) {

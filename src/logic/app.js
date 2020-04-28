@@ -1,147 +1,109 @@
 import { GameState } from './game-state.js';
 import { CanvasDrawer } from './drawer.js';
-import { Logger } from './logger.js';
 import { ColorScheme } from '../models/draw/color-scheme.js';
 import { Size } from '../models/draw/size.js';
-import { CoordinateTranslator } from './coordinate-translator.js';
 import { RollCommand } from './commands/roll-command.js';
 import { OppositeRollCommand } from './commands/opposite-roll-command.js';
 import { ActivateCommand } from './commands/activate-command.js';
 import { PickCommand } from './commands/pick-command.js';
 import { MoveCommand } from './commands/move-command.js';
-import { LayoutHelper } from './layout-helper.js';
 import { GameMode } from '../models/game-elements/enums/game-mode.js';
-import { PrimitiveAI } from './primitive-AI';
-import { SocketMultiplayer } from './multiplayer.js';
-import { CommandType } from '../models/game-elements/enums/command-type.js';
+import { Button } from './control/button.js';
+import { InteractiveBoard } from './control/Interactive-board.js';
+import { Container } from './control/container.js';
+import { LogPane } from './control/log-pane.js';
 
 export class App {
-  constructor(container, { firstPlayerName = 'Дал', secondPlayerName = 'Доз' }, { mode = GameMode.Single }, logger) {
+  get firstPlayerName() {
+    return this.myColor === 1 ? this.myName : this.otherPlayer.name;
+  }
+
+  get secondPlayerName() {
+    return this.myColor === 1 ? this.otherPlayer.name : this.myName;
+  }
+
+  constructor(container, myName, { mode = GameMode.Single }, otherPlayer, logger) {
     if (logger) {
       this.httpLogger = logger;
     }
 
-    this.mode = mode;
-
-    // по идее еще задизейблить ходы для 2 игрока со стороны реального игрока
-    if (mode === GameMode.AI) {
-      this._initAI();
-    } else if (mode === GameMode.Multi) {
-      this._initMultiplayer();
-    }
-
-    this.firstPlayerName = firstPlayerName;
-    this.secondPlayerName = secondPlayerName;
-
-    this.canvas = makeFieldLayout(container);
-    const controlsDiv = makeControlsLayout(container);
-    const loggerDiv = makeLoggerLayout(controlsDiv.parentElement);
-
-    this._initControls(controlsDiv, this.canvas);
-    this.logger = this._initLogger(loggerDiv);
-
-    this.commands = [];
-
     this.colorScheme = new ColorScheme();
     this.size = new Size();
-    this.fieldSize = 16;
+    this.size.fieldSize = 16;
+    this.commands = [];
 
-    this.drawer = this._initDrawer();
+    this.myName = myName;
+    this.mode = mode;
+    this.otherPlayer = otherPlayer;
 
-    function makeFieldLayout(container) {
-      const fieldContainer = document.createElement('div');
-      fieldContainer.id = 'dal-field';
-
-      const canvas = document.createElement('canvas');
-      canvas.id = 'dal-canvas';
-
-      fieldContainer.prepend(canvas);
-      container.prepend(fieldContainer);
-
-      return canvas;
-    }
-
-    function makeControlsLayout(container) {
-      const controlsContainer = document.createElement('div');
-      controlsContainer.className = 'dal-controls-container';
-
-      const controls = document.createElement('div');
-      controls.className = 'dal-controls';
-
-      controlsContainer.prepend(controls);
-      container.appendChild(controlsContainer);
-      return controls;
-    }
-
-    function makeLoggerLayout(container) {
-      const logContainer = document.createElement('div');
-      logContainer.id = 'dal-log-pane';
-      const logHeader = document.createElement('h3');
-      logHeader.textContent = 'Лог:';
-      logContainer.appendChild(logHeader);
-      container.appendChild(logContainer);
-
-      return logContainer;
-    }
+    this._initBoard(container, this.size);
+    this._initControlsButtons(container);
+    this._initLogger(container);
+    this._initDrawer();
   }
 
   start() {
-    this.currentState = GameState.start(this.fieldSize);
+    this.currentState = GameState.start(this.size.fieldSize);
+    // this._toggleControlsAvailability();
     this.draw(this.currentState);
   }
 
-  _initControls(controlsContainer, canvas) {
-    const btnRoll = LayoutHelper.makeControlButton({ name: 'Roll' });
-    const btnUndo = LayoutHelper.makeControlButton({ name: 'Undo', disabled: true });
+  _initBoard(container, size) {
+    this.board = new InteractiveBoard(size);
+    this._assignBoardHandlers();
+    container.appendElement(this.board);
+  }
+
+  _initControlsButtons(container) {
+    const btnRoll = new Button({ name: 'Roll' });
+    const btnUndo = new Button({ name: 'Undo' });
+    const controlsContainer = makeControlsLayout(container);
+
+    btnRoll.handleClick().then(() => this.rollDices());
+    btnUndo.handleClick().then(() => this.undo());
 
     controlsContainer.append(btnRoll, btnUndo);
 
-    btnRoll.addEventListener('click', () => this.rollDices());
-    btnUndo.addEventListener('click', () => this.undo().then(() => enableUndoButton(false)));
+    function makeControlsLayout(container) {
+      const controlsContainer = new Container('dal-controls-container');
+      const controls = new Container('dal-controls');
 
-    canvas.addEventListener('mouseup', (event) => {
-      const actionCoordinate = this.getActionCoordinate(event);
-      if (event.button === 0) {
-        this.pickFigure(actionCoordinate);
-      } else if (event.button === 2) {
-        this.move(actionCoordinate);
-      }
-      if (this.commands.length) {
-        enableUndoButton(true);
-      }
-    });
-
-    canvas.addEventListener('dblclick', (event) => this.activate(this.getActionCoordinate(event)).then(() => enableUndoButton(true)));
-
-    canvas.addEventListener('contextmenu', (event) => {
-      event.preventDefault();
-    });
-
-    function enableUndoButton(flag) {
-      btnUndo.disabled = !flag;
+      controlsContainer.prepend(controls);
+      container.appendElement(controlsContainer);
+      return controls;
     }
   }
 
-  _initAI() {
-    this.AI = new PrimitiveAI();
+  _initLogger(container) {
+    const logger = new LogPane();
+    container.appendElement(logger);
+    this.logger = logger;
   }
 
-  _initMultiplayer() {
-    this.multiplayer = new SocketMultiplayer();
-    this.multiplayer.receive().then(action => {
-      switch (action.commandType) {
-      case CommandType.Activate:
-        this.activate(action.actionCoordinate);
-        break;
-      case CommandType.Roll:
-        this.oppositePlayerRollDices(action.dices);
-        break;
-      case CommandType.Move:
-        this.pickFigure(action.from).then(() => {
-          this.move(action.to);
-        });
-      }
-    });
+  _assignBoardHandlers() {
+    this.board.handleLeftClick().then(actionCoordinate => this.pickFigure(actionCoordinate));
+    this.board.handleRightClick().then(actionCoordinate => this.move(actionCoordinate));
+    this.board.handleDoubleClick().then(actionCoordinate => this.activate(actionCoordinate));
+  }
+
+  _toggleControlsAvailability() {
+    if (!this.otherPlayer) return;
+    if (this.myColor !== this.currentState.currentPlayerColor) {
+      document.querySelector('#btn-Roll').disabled = true;
+      document.querySelector('#btn-Undo').disabled = true;
+    } else {
+      document.querySelector('#btn-Roll').disabled = false;
+      document.querySelector('#btn-Undo').disabled = false;
+    }
+  }
+
+  get myColor() {
+    if (!this.otherPlayer) return 1;
+    if (this.otherPlayer.order === 1) {
+      return 2;
+    } else {
+      return 1;
+    }
   }
 
   rollDices() {
@@ -185,46 +147,26 @@ export class App {
           this.commands.push(command);
         }
       }
-      if (this.mode === GameMode.AI && this.currentState.currentPlayerColor === 2) {
-        const AICommand = this.AI.generateCommand(this);
-        setTimeout(() => this.executeCommand(AICommand), 1000); // Пока так
-      }
+
+      this.handleOtherPlayerCommand(command);
+      this._toggleControlsAvailability();
     });
   }
 
-  getActionCoordinate(event) {
-    const mousePosition = this.getMousePosition(event);
-    const translatedCoordinates = CoordinateTranslator.translateMousePositionToGameCoordinates(mousePosition);
-    if (this.isValidCoordinate(translatedCoordinates)) {
-      return translatedCoordinates;
+  handleOtherPlayerCommand(command) {
+    if (this.otherPlayer && command.gameState.currentPlayerColor === this.myColor) {
+      this.otherPlayer.send(command).then(() => {
+        if (this.currentState.currentPlayerColor !== this.myColor) {
+          this.otherPlayer.getCommand(this).then(command => {
+            this.executeCommand(command);
+          });
+        }
+      });
     }
-    return null;
   }
 
-  getMousePosition(event) {
-    const canvasSize = this.canvas.getBoundingClientRect();
-    return {
-      x: event.clientX - canvasSize.left,
-      y: event.clientY - canvasSize.top,
-    };
-  }
-
-  // Фабрику бы, фабрику (или нет)
   _initDrawer() {
-    this.canvas.height = this.size.height;
-    this.canvas.width = this.size.width;
-    return new CanvasDrawer(this.canvas, this.colorScheme, this.size);
-  }
-
-  _initLogger(logPane) {
-    const logger = new Logger(logPane);
-    return logger;
-  }
-
-  isValidCoordinate({ x, y }) {
-    const isValid = (x >= 0 && x < 3) && (y >= 0 && (y < this.fieldSize || (x === 1 && y < this.fieldSize + 1)));
-    if (!isValid) console.log('click outside the field');
-    return isValid;
+    this.drawer = new CanvasDrawer(this.board.canvas, this.colorScheme, this.size);
   }
 
   playerStatistics(gameState) {

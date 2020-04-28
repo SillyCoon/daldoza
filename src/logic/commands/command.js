@@ -18,9 +18,6 @@ export class Command {
     if (this.app.httpLogger) {
       this.app.httpLogger.logCommand(this);
     }
-    if (this.app.multiplayer) {
-      this.app.multiplayer.send(this);
-    }
 
     return new Promise((resolve) => {
       if (nextState.hasAnyMove) {

@@ -2,11 +2,14 @@ import { RollCommand } from './commands/roll-command';
 import { MoveCommand } from './commands/move-command';
 import { ActivateCommand } from './commands/activate-command';
 import { CommandType } from '../models/game-elements/enums/command-type';
+import { OppositeRollCommand } from './commands/opposite-roll-command';
 
 export class SocketMultiplayer {
   constructor(url = 'ws://localhost:8000/ws/') {
     this.socket = new WebSocket(url);
-    this.socket.onopen = () => console.log('connection opened!');
+    this.socket.onopen = (ev) => {
+      console.log(`connection opened!`);
+    };
     this.socket.onclose = () => alert('connection closed!');
   }
 
@@ -22,12 +25,32 @@ export class SocketMultiplayer {
     this.socket.send(JSON.stringify(message));
   }
 
+  getCommand(app) {
+    return this.receive().then((action) => {
+      return new Promise((resolve, reject) => {
+        switch (action.commandType) {
+        case CommandType.Activate:
+          resolve(new ActivateCommand(app, app.currentState, action.actionCoordinate));
+        case CommandType.Roll:
+          resolve(new OppositeRollCommand(app, app.currentState, action.dices));
+        case CommandType.Move:
+          resolve(new MoveCommand(app, app.currentState, { from: action.from, to: action.to }));
+        }
+      });
+    });
+  }
+
   receive() {
     return new Promise((resolve, reject) => {
       this.socket.onmessage = (message) => {
-        console.log(message.data);
-        const action = JSON.parse(message.data);
-        resolve(action);
+        const data = JSON.parse(message.data);
+
+        if (data.type === 'order') {
+          this.order = data.value;
+          console.log(`Your order is: ${data.value}`);
+        } else if (data.type === 'command') {
+          resolve(data.value);
+        }
       };
     });
   }

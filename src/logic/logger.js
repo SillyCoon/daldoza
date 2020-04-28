@@ -6,7 +6,7 @@ export class Logger {
   log(event) {
     const logItem = document.createElement('p');
     logItem.textContent = event.toString();
-    this._logPane.appendChild(logItem);
+    this._logPane.appendElement(logItem);
   }
 
   logError(error) {

@@ -2,37 +2,50 @@ import { App } from './logic/app';
 import { HttpLogger } from './logic/http-logger';
 import { GameMode } from './models/game-elements/enums/game-mode.js';
 
+// eslint-disable-next-line no-unused-vars
 import css from './styles/style.css';
 
-(function showStartScreen() {
-  const gameContainer = appendElementTo(document.body, 'div', 'game-container');
-  document.body.appendChild(gameContainer);
+import { Container } from './logic/control/container';
+import { Button } from './logic/control/button';
+import { SocketMultiplayer } from './logic/multiplayer';
+import { PrimitiveAI } from './logic/primitive-AI';
 
-  renderGameModePicker(gameContainer);
+(function showStartScreen() {
+  const container = new Container('game-container');
+  document.body.appendChild(container.nativeElement);
+
+  renderGameModePicker(container);
   // initGame(gameContainer);
 
   function renderGameModePicker(container) {
-    const startContainer = appendElementTo(container, 'div', 'start-container');
-    appendElementTo(startContainer, 'h1', '', 'Привет!');
-    appendElementTo(startContainer, 'h2', '', 'Выбери тип игры:');
-    const controlsContainer = appendElementTo(startContainer, 'div', 'dal-controls-container');
-    const multiplayerBtn = appendElementTo(controlsContainer, 'button', '', 'Multiplayer');
-    const aiBtn = appendElementTo(controlsContainer, 'button', '', 'AI');
+    const startContainer = new Container('start-container');
+    const controlsContainer = new Container('dal-controls-container');
+    appendElementTo(startContainer.nativeElement, 'h1', '', 'Привет!');
+    appendElementTo(startContainer.nativeElement, 'h2', '', 'Выбери тип игры:');
 
-    multiplayerBtn.addEventListener('click', (event) => {
-      container.removeChild(startContainer);
-      initGame(container, GameMode.Multi);
+    startContainer.appendElement(controlsContainer.nativeElement);
+    container.appendElement(startContainer);
+
+    const multiplayerBtn = new Button({ name: 'Multiplayer' }, '')
+    multiplayerBtn.handleClick().then(() => {
+      container.remove(startContainer);
+      const otherPlayer = new SocketMultiplayer();
+      initGame(container, GameMode.Multi, 'Дал', otherPlayer);
     });
 
-    aiBtn.addEventListener('click', (event) => {
-      container.removeChild(startContainer);
-      initGame(container, GameMode.AI);
+    const aiBtn = new Button({ name: 'AI' }, '');
+    aiBtn.handleClick().then(() => {
+      container.remove(startContainer);
+      const otherPlayer = new PrimitiveAI();
+      initGame(container, GameMode.AI, 'Дал', otherPlayer);
     });
+
+    controlsContainer.append(multiplayerBtn, aiBtn);
   }
 })();
 
 
-function initGame(gameContainer, mode) {
+function initGame(gameContainer, mode, playerName, otherPlayer) {
   fetch('http://localhost:3000/health').then(
     () => {
       console.log('Logger health: OK');
@@ -43,14 +56,15 @@ function initGame(gameContainer, mode) {
       });
       const app = new App(
         gameContainer,
-        { firstPlayerName: 'Дал', secondPlayerName: 'Доз' },
+        playerName,
+        otherPlayer,
         { mode }, logger
       );
       app.start();
     },
     (onRejected) => {
       console.error(onRejected);
-      const app = new App(gameContainer, { firstPlayerName: 'Дал', secondPlayerName: 'Доз' }, { mode });
+      const app = new App(gameContainer, playerName, { mode }, otherPlayer);
       app.start();
     },
   );
