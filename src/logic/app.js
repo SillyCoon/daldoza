@@ -62,7 +62,7 @@ export class App {
 
   start() {
     this.currentState = GameState.start(this.size.fieldSize);
-    // this._toggleControlsAvailability();
+    this._toggleControlsAvailability();
     this.draw(this.currentState);
   }
 
@@ -76,6 +76,8 @@ export class App {
     const btnRoll = new Button({ name: 'Roll' });
     const btnUndo = new Button({ name: 'Undo' });
     const controlsContainer = makeControlsLayout(container);
+
+    this.controlsButtons = [btnRoll, btnUndo];
 
     btnRoll.handleClick()
       .pipe(takeWhile(() => this.gameExists))
@@ -116,12 +118,20 @@ export class App {
 
   _toggleControlsAvailability() {
     if (!this.otherPlayer) return;
-    if (this.myColor !== this.currentState.currentPlayerColor) {
-      document.querySelector('#btn-Roll').disabled = true;
-      document.querySelector('#btn-Undo').disabled = true;
+    if (this.isMyTurn) {
+      enableControlsButtons(this.controlsButtons);
+      this.board.enable();
     } else {
-      document.querySelector('#btn-Roll').disabled = false;
-      document.querySelector('#btn-Undo').disabled = false;
+      disableControlsButtons(this.controlsButtons);
+      this.board.disable();
+    }
+
+    function disableControlsButtons(buttons) {
+      buttons.forEach(button => button.disable());
+    }
+
+    function enableControlsButtons(buttons) {
+      buttons.forEach(button => button.enable());
     }
   }
 
@@ -162,16 +172,15 @@ export class App {
 
   executeCommand(command) {
     return command.execute().then((stateHasMove) => {
-      if (command.gameState.currentPlayerColor !== this.currentState.currentPlayerColor) {
-        this._toggleControlsAvailability();
-      }
+      this._toggleControlsAvailability();
       if (stateHasMove) {
         if (!(command instanceof RollCommand) && !(command instanceof PickCommand)) {
           this.commands.push(command);
         }
-        this._toggleControlsAvailability();
       }
-      this.handleOtherPlayerCommand(command);
+      if (!(command instanceof PickCommand)) {
+        this.handleOtherPlayerCommand(command);
+      }
     });
   }
 

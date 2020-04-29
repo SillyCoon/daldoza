@@ -72,10 +72,13 @@ export class PrimitiveAI {
         switch (command.type) {
         case CommandType.Roll:
           resolve(new RollCommand(app, app.currentState));
+          break;
         case CommandType.Activate:
           resolve(new ActivateCommand(app, app.currentState, command.actionCoordinate));
+          break;
         case CommandType.Move:
           resolve(new MoveCommand(app, app.currentState, { from: command.from, to: command.to }));
+          break;
         default:
           throw new Error('AI error!');
         }

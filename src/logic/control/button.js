@@ -16,4 +16,12 @@ export class Button extends BaseControl {
   handleClick() {
     return fromEvent(this.nativeElement, 'click');
   }
+
+  enable() {
+    this.nativeElement.disabled = false;
+  }
+
+  disable() {
+    this.nativeElement.disabled = true;
+  }
 }

@@ -26,6 +26,14 @@ export class InteractiveBoard extends BaseControl {
     });
   }
 
+  disable() {
+    this.nativeElement.classList.add('disabled-field');
+  }
+
+  enable() {
+    this.nativeElement.classList.remove('disabled-field');
+  }
+
   handleDoubleClick() {
     return fromEvent(this.canvas, 'dblclick').pipe(map(event => this.getActionCoordinate(event)));
   }
