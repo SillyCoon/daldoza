@@ -1,4 +1,12 @@
 export class Command {
+  get executerColor() {
+    return this.gameState.currentPlayerColor;
+  }
+
+  get executedByMe() {
+    return this.executerColor === this.app.myColor;
+  }
+
   constructor(app, gameState, actionCoordinate) {
     this.app = app;
     this.gameState = gameState;

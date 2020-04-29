@@ -19,6 +19,10 @@ export class App {
     return this.myColor === 1 ? this.myName : this.otherPlayer.name;
   }
 
+  get isMyTurn() {
+    return this.currentState.currentPlayerColor === this.myColor;
+  }
+
   get secondPlayerName() {
     return this.myColor === 1 ? this.otherPlayer.name : this.myName;
   }
@@ -158,24 +162,31 @@ export class App {
 
   executeCommand(command) {
     return command.execute().then((stateHasMove) => {
+      if (command.gameState.currentPlayerColor !== this.currentState.currentPlayerColor) {
+        this._toggleControlsAvailability();
+      }
       if (stateHasMove) {
         if (!(command instanceof RollCommand) && !(command instanceof PickCommand)) {
           this.commands.push(command);
         }
+        this._toggleControlsAvailability();
       }
       this.handleOtherPlayerCommand(command);
-      this._toggleControlsAvailability();
     });
   }
 
   handleOtherPlayerCommand(command) {
-    if (this.otherPlayer && command.gameState.currentPlayerColor === this.myColor) {
+    if (command.executedByMe) {
       this.otherPlayer.send(command).then(() => {
-        if (this.currentState.currentPlayerColor !== this.myColor) {
-          this.otherPlayer.getCommand(this).then(command => {
+        if (!this.isMyTurn) {
+          this.otherPlayer.getCommandFor(this).then(command => {
             this.executeCommand(command);
           });
         }
+      });
+    } else if (!this.isMyTurn) {
+      this.otherPlayer.getCommandFor(this).then(command => {
+        this.executeCommand(command);
       });
     }
   }

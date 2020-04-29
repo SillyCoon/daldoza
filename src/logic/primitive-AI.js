@@ -61,23 +61,25 @@ export class PrimitiveAI {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve();
-      }, 2000);
+      }, 1000);
     });
   }
 
-  getCommand(app) {
+  getCommandFor(app) {
     const command = this._notSuchRandomCommand(app.currentState);
     return new Promise((resolve, reject) => {
-      switch (command.type) {
-      case CommandType.Roll:
-        resolve(new RollCommand(app, app.currentState));
-      case CommandType.Activate:
-        resolve(new ActivateCommand(app, app.currentState, command.actionCoordinate));
-      case CommandType.Move:
-        resolve(new MoveCommand(app, app.currentState, { from: command.from, to: command.to }));
-      default:
-        throw new Error('AI error!');
-      }
+      setTimeout(() => {
+        switch (command.type) {
+        case CommandType.Roll:
+          resolve(new RollCommand(app, app.currentState));
+        case CommandType.Activate:
+          resolve(new ActivateCommand(app, app.currentState, command.actionCoordinate));
+        case CommandType.Move:
+          resolve(new MoveCommand(app, app.currentState, { from: command.from, to: command.to }));
+        default:
+          throw new Error('AI error!');
+        }
+      }, 1000);
     });
   }
 

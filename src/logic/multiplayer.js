@@ -25,7 +25,7 @@ export class SocketMultiplayer {
     this.socket.send(JSON.stringify(message));
   }
 
-  getCommand(app) {
+  getCommandFor(app) {
     return this.receive().then((action) => {
       return new Promise((resolve, reject) => {
         switch (action.commandType) {
