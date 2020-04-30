@@ -1,7 +1,7 @@
-import { RollCommand } from './commands/roll-command';
-import { CommandType } from '../models/game-elements/enums/command-type';
-import { ActivateCommand } from './commands/activate-command';
-import { MoveCommand } from './commands/move-command';
+import { RollCommand } from '../commands/roll-command';
+import { CommandType } from '../../models/game-elements/enums/command-type';
+import { ActivateCommand } from '../commands/activate-command';
+import { MoveCommand } from '../commands/move-command';
 
 // еще прикольно можно сделать commandsHelper.bind(commands), только придется поменять this.commands на this
 const commandsHelper = {

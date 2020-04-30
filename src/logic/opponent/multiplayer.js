@@ -1,8 +1,8 @@
-import { RollCommand } from './commands/roll-command';
-import { MoveCommand } from './commands/move-command';
-import { ActivateCommand } from './commands/activate-command';
-import { CommandType } from '../models/game-elements/enums/command-type';
-import { OppositeRollCommand } from './commands/opposite-roll-command';
+import { RollCommand } from '../commands/roll-command';
+import { MoveCommand } from '../commands/move-command';
+import { ActivateCommand } from '../commands/activate-command';
+import { CommandType } from '../../models/game-elements/enums/command-type';
+import { OppositeRollCommand } from '../commands/opposite-roll-command';
 
 export class SocketMultiplayer {
   constructor(url = 'ws://localhost:8000/ws/') {
@@ -11,6 +11,15 @@ export class SocketMultiplayer {
       console.log(`connection opened!`);
     };
     this.socket.onclose = () => alert('connection closed!');
+  }
+
+  assignOrder() {
+    return new Promise((resolve, reject) => {
+      this.socket.onopen = () => {
+        this.socket.send(JSON.stringify({ type: 'order' }));
+        this.receive().then(() => resolve());
+      };
+    });
   }
 
   send(command) {
@@ -47,7 +56,9 @@ export class SocketMultiplayer {
 
         if (data.type === 'order') {
           this.order = data.value;
-          console.log(`Your order is: ${data.value}`);
+          this.name = `Игрок ${this.order}`;
+          resolve(this.order);
+          console.log(`Opponent is: ${data.value}`);
         } else if (data.type === 'command') {
           resolve(data.value);
         }

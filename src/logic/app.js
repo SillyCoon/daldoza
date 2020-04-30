@@ -16,7 +16,7 @@ import { takeWhile } from 'rxjs/operators';
 
 export class App {
   get firstPlayerName() {
-    return this.myColor === 1 ? this.myName : this.otherPlayer.name;
+    return this.myColor === 1 ? this.myName : this.opponent.name;
   }
 
   get isMyTurn() {
@@ -24,12 +24,12 @@ export class App {
   }
 
   get secondPlayerName() {
-    return this.myColor === 1 ? this.otherPlayer.name : this.myName;
+    return this.myColor === 1 ? this.opponent.name : this.myName;
   }
 
   get myColor() {
-    if (!this.otherPlayer) return 1;
-    if (this.otherPlayer.order === 1) {
+    if (!this.opponent) return 1;
+    if (this.opponent.order === 1) {
       return 2;
     } else {
       return 1;
@@ -40,7 +40,7 @@ export class App {
     return this.currentState && !this.currentState.hasWinCondition;
   }
 
-  constructor(container, myName, { mode = GameMode.Single }, otherPlayer, logger) {
+  constructor(container, myName, { mode = GameMode.Single }, opponent, logger) {
     if (logger) {
       this.httpLogger = logger;
     }
@@ -52,12 +52,13 @@ export class App {
 
     this.myName = myName;
     this.mode = mode;
-    this.otherPlayer = otherPlayer;
+    this.opponent = opponent;
 
     this._initBoard(container, this.size);
     this._initControlsButtons(container);
     this._initLogger(container);
     this._initDrawer();
+    console.log(this.myColor);
   }
 
   start() {
@@ -117,7 +118,7 @@ export class App {
   }
 
   _toggleControlsAvailability() {
-    if (!this.otherPlayer) return;
+    if (!this.opponent) return;
     if (this.isMyTurn) {
       enableControlsButtons(this.controlsButtons);
       this.board.enable();
@@ -179,22 +180,22 @@ export class App {
         }
       }
       if (!(command instanceof PickCommand)) {
-        this.handleOtherPlayerCommand(command);
+        this.handleOpponentCommand(command);
       }
     });
   }
 
-  handleOtherPlayerCommand(command) {
+  handleOpponentCommand(command) {
     if (command.executedByMe) {
-      this.otherPlayer.send(command).then(() => {
+      this.opponent.send(command).then(() => {
         if (!this.isMyTurn) {
-          this.otherPlayer.getCommandFor(this).then(command => {
+          this.opponent.getCommandFor(this).then(command => {
             this.executeCommand(command);
           });
         }
       });
     } else if (!this.isMyTurn) {
-      this.otherPlayer.getCommandFor(this).then(command => {
+      this.opponent.getCommandFor(this).then(command => {
         this.executeCommand(command);
       });
     }

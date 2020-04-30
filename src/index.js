@@ -8,15 +8,14 @@ import css from './styles/style.css';
 
 import { Container } from './logic/control/container';
 import { Button } from './logic/control/button';
-import { SocketMultiplayer } from './logic/multiplayer';
-import { PrimitiveAI } from './logic/primitive-AI';
+import { SocketMultiplayer } from './logic/opponent/multiplayer';
+import { PrimitiveAI } from './logic/opponent/primitive-AI';
 
 (function showStartScreen() {
   const container = new Container('game-container');
   document.body.appendChild(container.nativeElement);
 
   renderGameModePicker(container);
-  // initGame(gameContainer);
 
   function renderGameModePicker(container) {
     const startContainer = new Container('start-container');
@@ -30,15 +29,17 @@ import { PrimitiveAI } from './logic/primitive-AI';
     const multiplayerBtn = new Button({ name: 'Multiplayer' }, '');
     multiplayerBtn.handleClick().pipe(take(1)).subscribe(() => {
       container.remove(startContainer);
-      const otherPlayer = new SocketMultiplayer();
-      initGame(container, GameMode.Multi, 'Дал', otherPlayer);
+      const opponent = new SocketMultiplayer();
+      opponent.assignOrder().then(() => {
+        initGame(container, GameMode.Multi, `Игрок ${opponent.order === 1 ? 2 : 1}`, opponent);
+      });
     });
 
     const aiBtn = new Button({ name: 'AI' }, '');
     aiBtn.handleClick().pipe(take(1)).subscribe(() => {
       container.remove(startContainer);
-      const otherPlayer = new PrimitiveAI();
-      initGame(container, GameMode.AI, 'Дал', otherPlayer);
+      const opponent = new PrimitiveAI();
+      initGame(container, GameMode.AI, 'Дал', opponent);
     });
 
     controlsContainer.append(multiplayerBtn, aiBtn);
@@ -46,7 +47,7 @@ import { PrimitiveAI } from './logic/primitive-AI';
 })();
 
 
-function initGame(gameContainer, mode, playerName, otherPlayer) {
+function initGame(gameContainer, mode, playerName, opponent) {
   fetch('http://localhost:3000/health').then(
     () => {
       console.log('Logger health: OK');
@@ -58,14 +59,14 @@ function initGame(gameContainer, mode, playerName, otherPlayer) {
       const app = new App(
         gameContainer,
         playerName,
-        otherPlayer,
+        opponent,
         { mode }, logger
       );
       app.start();
     },
     (onRejected) => {
       console.error(onRejected);
-      const app = new App(gameContainer, playerName, { mode }, otherPlayer);
+      const app = new App(gameContainer, playerName, { mode }, opponent);
       app.start();
     },
   );
