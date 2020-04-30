@@ -80,7 +80,7 @@ export class GameState {
       if (params.from) {
         this.selectedFigure = this.field.pickFigure(params.from);
       }
-      nextState = this.makeMove(this.selectedFigure.coordinate, params.to);
+      nextState = this.selectedFigure ? this.makeMove(this.selectedFigure.coordinate, params.to) : this;
       break;
     case CommandType.Activate:
       nextState = this.activate(params.figureCoordinate);

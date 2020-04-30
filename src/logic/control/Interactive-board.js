@@ -1,8 +1,8 @@
 import { Container } from './container';
 import { BaseControl } from './base-control';
 import { CoordinateTranslator } from '../coordinate-translator';
-import { Observable, fromEvent } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { fromEvent } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
 
 export class InteractiveBoard extends BaseControl {
   constructor(size) {
@@ -35,35 +35,30 @@ export class InteractiveBoard extends BaseControl {
   }
 
   handleDoubleClick() {
-    return fromEvent(this.canvas, 'dblclick').pipe(map(event => this.getActionCoordinate(event)));
+    return fromEvent(this.canvas, 'dblclick').pipe(
+      map(event => this.getActionCoordinate(event)),
+      filter(coordinates => coordinates)
+    );
   }
 
   handleLeftClick() {
-    return Observable.create((observer) => {
-      const subscription = this._handleMouseupEvent().subscribe(event => {
-        if (event.button === 0) observer.next(this.getActionCoordinate(event));
-      });
-      return () => {
-        console.log('unsubscribed from left click event');
-        subscription.unsubscribe();
-      };
-    });
+    return this._handleMouseupEvent().pipe(
+      filter(event => event.button === 0),
+      map(event => this.getActionCoordinate(event))
+    );
   }
 
   handleRightClick() {
-    return Observable.create((observer) => {
-      const subscription = this._handleMouseupEvent().subscribe(event => {
-        if (event.button === 2) observer.next(this.getActionCoordinate(event));
-      });
-      return () => {
-        console.log('unsubscribed from right click event');
-        subscription.unsubscribe();
-      };
-    });
+    return this._handleMouseupEvent().pipe(
+      filter(event => event.button === 2),
+      map(event => this.getActionCoordinate(event))
+    );
   }
 
   _handleMouseupEvent() {
-    return fromEvent(this.canvas, 'mouseup');
+    return fromEvent(this.canvas, 'mouseup').pipe(
+      filter(event => this.getActionCoordinate(event))
+    );
   }
 
   getActionCoordinate(event) {
