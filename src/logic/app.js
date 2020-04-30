@@ -65,6 +65,9 @@ export class App {
     this.currentState = GameState.start(this.size.fieldSize);
     this._toggleControlsAvailability();
     this.draw(this.currentState);
+    if (!this.isMyTurn) {
+      this.opponent.getCommandFor(this).then(command => this.executeCommand(command));
+    }
   }
 
   _initBoard(container, size) {

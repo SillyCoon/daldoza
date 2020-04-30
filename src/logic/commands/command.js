@@ -34,6 +34,7 @@ export class Command {
         this.app.log(`Нет доступных ходов для игрока ${nextState.currentPlayerColor}`);
         setTimeout(() => {
           const skippedState = nextState.skipMove();
+          this.skippedDices = nextState.dices;
           this.app.currentState = skippedState;
           this.app.draw(skippedState);
           resolve(false);

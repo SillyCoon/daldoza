@@ -23,15 +23,18 @@ export class SocketMultiplayer {
   }
 
   send(command) {
-    let message;
-    if (command instanceof RollCommand) {
-      message = this.makeRoll(command);
-    } else if (command instanceof MoveCommand) {
-      message = this.makeActivate(command);
-    } else if (command instanceof ActivateCommand) {
-      message = this.makeMove(command);
-    }
-    this.socket.send(JSON.stringify(message));
+    return new Promise((resolve, reject) => {
+      let message;
+      if (command instanceof RollCommand) {
+        message = this.makeRoll(command);
+      } else if (command instanceof ActivateCommand) {
+        message = this.makeActivate(command);
+      } else if (command instanceof MoveCommand) {
+        message = this.makeMove(command);
+      }
+      this.socket.send(JSON.stringify(message));
+      resolve();
+    });
   }
 
   getCommandFor(app) {
@@ -78,7 +81,10 @@ export class SocketMultiplayer {
   }
 
   makeRoll(command) {
-    const rollMessage = { commandType: CommandType.Roll, dices: command.app.currentState.dices };
+    const rollMessage = {
+      commandType: CommandType.Roll,
+      dices: command.skippedDices ? command.skippedDices : command.app.currentState.dices
+    };
     return rollMessage;
   }
 }
