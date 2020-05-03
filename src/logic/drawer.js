@@ -1,16 +1,20 @@
-import { DiceDrawerFactory } from './dice-drawer-factory.js';
+import { DicePresentation } from './draw/dice-presentation.js';
+
 
 export class CanvasDrawer {
-  constructor(canvas, colorScheme, size) {
-    this.canvas = canvas;
+  constructor(board, colorScheme, size) {
+    this.canvas = board.canvas;
+
+    this.dice = DicePresentation;
+    this.dice.init();
 
     this.squareSize = size.square;
     this.fontSize = size.fontSize;
     this.numerationPadding = size.numerationPadding;
     this.colorScheme = colorScheme;
 
-    if (canvas.getContext) {
-      this._context = canvas.getContext('2d');
+    if (this.canvas.getContext) {
+      this._context = this.canvas.getContext('2d');
       this._context.font = `${this.fontSize}px serif`;
       this._context.textAlign = 'center';
       this._context.textBaseline = 'middle';
@@ -22,6 +26,7 @@ export class CanvasDrawer {
   draw(state, playerStatistic) {
     this.clear();
     this._setFillColor(state.currentPlayerColor === 1 ? this.colorScheme.firstPlayerColor : this.colorScheme.secondPlayerColor);
+
     this._drawDices(state.dices);
     this._drawCurrentPlayerStatistics(playerStatistic);
     state.field.squares.forEach((row, x) => {
@@ -68,6 +73,13 @@ export class CanvasDrawer {
     }
   }
 
+  _drawDice(x, y, face) {
+    this.dice.getSprite(face).then(([cubeSprite, faceSprite]) => {
+      this._context.drawImage(cubeSprite, this._nextSquareCoordinate(x), this._nextSquareCoordinate(y));
+      this._context.drawImage(faceSprite, this._nextSquareCoordinate(x), this._nextSquareCoordinate(y));
+    });
+  }
+
   _drawSquare(x, y, highlighted = false) {
     let color = this.colorScheme.basicSquare;
     if (highlighted) {
@@ -77,13 +89,6 @@ export class CanvasDrawer {
     this._setStrokeColor(color);
     this._context.strokeRect(this._nextSquareCoordinate(x), this._nextSquareCoordinate(y), this.squareSize, this.squareSize);
     this._context.lineWidth = 1;
-  }
-
-  _drawDice(x, y, value) {
-    this._drawSquare(x, y);
-    const valueDrawer = new DiceDrawerFactory(value);
-    const drawDice = valueDrawer.makeDrawFunction();
-    drawDice(this._context, this._centerOfSquare(x), this._centerOfSquare(y));
   }
 
   _drawFigure(figure, x, y) {

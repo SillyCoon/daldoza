@@ -58,7 +58,6 @@ export class App {
     this._initControlsButtons(container);
     this._initLogger(container);
     this._initDrawer();
-    console.log(this.myColor);
   }
 
   start() {
@@ -205,7 +204,7 @@ export class App {
   }
 
   _initDrawer() {
-    this.drawer = new CanvasDrawer(this.board.canvas, this.colorScheme, this.size);
+    this.drawer = new CanvasDrawer(this.board, this.colorScheme, this.size);
   }
 
   playerStatistics(gameState) {
